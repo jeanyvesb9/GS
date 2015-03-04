@@ -1309,5 +1309,5 @@ void MainWindow::tab7_loadData()
 
 void MainWindow::tab7_goBack_clicked()
 {
-
+    ui->tabWidget->setCurrentIndex(6);
 }
