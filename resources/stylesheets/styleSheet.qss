@@ -1,0 +1,13 @@
+QPlainTextEdit
+{
+    background-color: #ffffde;
+}
+
+QGroupBox
+{
+    color : rgb(66,130,196);
+}
+QTableView
+{
+    background-color: #ffffde
+}

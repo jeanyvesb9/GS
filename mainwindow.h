@@ -54,9 +54,9 @@ private slots:
     void tab0_Erase_clicked();
     void tab0_TableView_doubleClicked(const QModelIndex &index);
     void tab0_SearchOpen_clicked();
+    void tab0$1_goBack_clicked();
 
     //Tab1
-    void tab1_goBack_clicked();
     void tab1_edit_clicked();
     void tab1_save_clicked();
     void tab1_basicInfo_City_currentIndexChanged(int index);
@@ -65,6 +65,8 @@ private slots:
     void tab1_ProgramData_Remove();
     void tab1_ProgramData_Cancel();
     void tab1_ProgramData_Accept();
+    void tab1_ProgramData_Edit();
+    void tab1$7_ProgramData_Edit_goBack_clicked();
 
     //Tab2
     void tab2_Next_clicked();
@@ -79,15 +81,16 @@ private slots:
     void tab6_Erase_clicked();
     void tab6_SearchOpen_clicked();
     void tab6_TableView_doubleClicked(const QModelIndex &index);
+    void tab6$7_goBack_clicked();
 
     //Tab7
-    void tab7_goBack_clicked();
     void tab7_edit_clicked();
     void tab7_save_clicked();
     void tab7_delete_clicked();
     void tab7_open_clicked();
+    void tab7_Godsons_Table_doubleClicked(const QModelIndex &index);
     void tab7_disconnect_clicked();
-    void tab7_open_goBack_clicked();
+    void tab7$1_open_goBack_clicked();
 
 public slots:
     void tryConnect();
@@ -111,10 +114,11 @@ private:
     void tab0_Query();
     QSqlQueryModel *tab0_model;
     QStringList tab0_neighborhoods;
-    QString tab0_searchIndex;
 
     //Tab1
+    QString tab1_searchIndex;
     bool tab1_editMode;
+    bool tab1_godParentAvail;
     void tab1_setEditMode(bool status);
     void tab1_loadData();
     void tab1_saveData();
@@ -131,11 +135,15 @@ private:
     //Tab6
     void tab6_Query();
     QSqlQueryModel *tab6_model;
-    QString tab6_searchIndex;
 
     //Tab7
+    QString tab7_searchIndex;
     void tab7_loadData();
+    void tab7_saveData();
     QSqlQueryModel *tab7_model;
+    void tab7_setEditMode(bool status);
+    bool tab7_editMode;
+    bool tab7_disconnect(QString index);
 
 
 };

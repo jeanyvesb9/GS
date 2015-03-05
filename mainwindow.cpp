@@ -155,7 +155,6 @@ MainWindow::MainWindow(QWidget *parent) :
         //--------------------------------------------------------------------------
         //Tab1
         connect(ui->tab1_BasicInfo_City, SIGNAL(currentIndexChanged(int)), this, SLOT(tab1_basicInfo_City_currentIndexChanged(int)));
-        connect(ui->tab1_goBack, SIGNAL(clicked()), this, SLOT(tab1_goBack_clicked()));
         connect(ui->tab1_edit, SIGNAL(clicked()), this, SLOT(tab1_edit_clicked()));
         connect(ui->tab1_saveChanges, SIGNAL(clicked()), this, SLOT(tab1_save_clicked()));
         connect(ui->tab1_Family_Father_DeathDate_Known, SIGNAL(clicked(bool)), this, SLOT(tab1_fatherDate(bool)));
@@ -163,6 +162,7 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(ui->tab1_ProgramData_Remove, SIGNAL(clicked()), this, SLOT(tab1_ProgramData_Remove()));
         connect(ui->tab1_ProgramData_To_Cancel, SIGNAL(clicked()), this, SLOT(tab1_ProgramData_Cancel()));
         connect(ui->tab1_ProgramData_To_Accept, SIGNAL(clicked()), this, SLOT(tab1_ProgramData_Accept()));
+        connect(ui->tab1_ProgramData_GodParent_Edit, SIGNAL(clicked()), this, SLOT(tab1_ProgramData_Edit()));
 
         QList<QGroupBox*> groupBox_List = ui->tab_searchView->findChildren<QGroupBox*>();
         foreach (QGroupBox* groupBox, groupBox_List)
@@ -196,6 +196,12 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->tab1_Visits_Table->verticalHeader()->setVisible(false);
 
         tab1_setEditMode(false);
+
+
+
+
+
+
 
 
         //--------------------------------------------------------------------------
@@ -233,7 +239,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
         //--------------------------------------------------------------------------
         //Tab7
+        connect(ui->tab7_edit, SIGNAL(clicked()), this, SLOT(tab7_edit_clicked()));
+        connect(ui->tab7_saveChanges, SIGNAL(clicked()), this, SLOT(tab7_save_clicked()));
+        connect(ui->tab7_Delete, SIGNAL(clicked()), this, SLOT(tab7_delete_clicked()));
+        connect(ui->tab7_Open, SIGNAL(clicked()), this, SLOT(tab7_open_clicked()));
+        connect(ui->tab7_Godsons_Table, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tab7_Godsons_Table_doubleClicked(QModelIndex)));
+        connect(ui->tab7_Open, SIGNAL(clicked()), this, SLOT(tab7_open_clicked()));
+        connect(ui->tab7_Disconnect, SIGNAL(clicked()), this, SLOT(tab7_disconnect_clicked()));
 
+        ui->tab7_goBack->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Back_Icon.png")));
+        ui->tab7_saveChanges->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Save_Icon.png")));
+        ui->tab7_Delete->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Delete_Icon.png")));
+        ui->tab7_Open->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Open_Icon.png")));
+
+        ui->tab7_Godsons_Table->setSelectionBehavior(QAbstractItemView::SelectRows);
+        ui->tab7_Godsons_Table->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->tab7_Godsons_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        ui->tab7_Godsons_Table->verticalHeader()->setVisible(false);
+
+        tab7_setEditMode(false);
 
 
 
@@ -394,9 +418,11 @@ void MainWindow::tabWidget_indexChanged(int index)
 
 void MainWindow::tab0_Query()
 {
+    //Query function for filling the godsons table, based on the lineEdits text as filters.
     tab0_model = new QSqlQueryModel;
     QSqlQuery query;
 
+    //Get filtering data
     QString ID = ui->tab0_GodSon_ID->text();
     QString Name = ui->tab0_GodSon_Name->text();
     QString Surname = ui->tab0_GodSon_Surname->text();
@@ -410,7 +436,7 @@ void MainWindow::tab0_Query()
     QString GP_Name = ui->tab0_GodParent_Name->text();
     QString GP_Surname = ui->tab0_GodParent_Surname->text();
 
-    //Get ID_Place
+    //Get ID_Place from city and neighborhood
     query.prepare("SELECT ID_Place FROM Place WHERE ID_City LIKE :city AND Name LIKE :neigh ORDER BY ID_Place ASC");
     query.bindValue(":city", QVariant((CityAvail)?QString::number(City):"%"));
     query.bindValue(":neigh", QVariant((NeighAvail)?Neighborhood:"%"));
@@ -437,6 +463,7 @@ void MainWindow::tab0_Query()
     query.bindValue(":gp_name", (GP_Name.isEmpty())?placeholder:GP_Name.append(placeholder));
     query.bindValue(":gp_surname", (GP_Surname.isEmpty())?placeholder:GP_Surname.append(placeholder));
 
+    //Execute Query
     query.exec();
     tab0_model->setQuery(query);
     ui->tab0_TableView->setModel(tab0_model);
@@ -445,46 +472,55 @@ void MainWindow::tab0_Query()
 
 void MainWindow::tab0_Query_Slot()
 {
+    //Query Slot
     tab0_Query();
 }
 
 void MainWindow::tab0_GodSon_ID_textChanged(const QString &arg1)
 {
+    //Check for valid input on the Godson ID. Change the color to Red otherwhise
     QPalette *palette = new QPalette();
 
+    //Check if empty
     if(!arg1.isEmpty())
     {
 
         QString workString = arg1;
+        //Fill the working string with dummy data. Using number since in the 2, 3 and 4 places are valid. Not needed for the first one, since empty check first
         for (int i = arg1.size(); i<4; i++)
         {
             workString.append(QString::number(0));
         }
-
+        //Check for validity
         if(!(workString[0].isLetter()) || workString[1].isLetter() || workString[2].isLetter() || workString[3].isLetter())
         {
+            //Change to RED if invalid
             palette->setColor(QPalette::Text,Qt::red);
             ui->tab0_GodSon_ID->setPalette(*palette);
         }
         else
         {
+            //Change to BLACK if valid
             palette->setColor(QPalette::Text,Qt::black);
             ui->tab0_GodSon_ID->setPalette(*palette);
         }
     }
     else
     {
+        //Change the cursor back to black if now empty and in case of previous error
         palette->setColor(QPalette::Text,Qt::black);
         ui->tab0_GodSon_ID->setPalette(*palette);
     }
 
+    //Requery
     tab0_Query();
 
 }
 
 void MainWindow::tab0_GodSon_DateCheckBox_stateChanged(int arg1)
 {
-    if (arg1 == 0)
+    //Lock Date filter field if not needed
+    if (arg1)
     {
         ui->tab0_GodSon_Date->setEnabled(0);
     }
@@ -492,49 +528,60 @@ void MainWindow::tab0_GodSon_DateCheckBox_stateChanged(int arg1)
     {
         ui->tab0_GodSon_Date->setEnabled(1);
     }
+    //Requery
     tab0_Query();
 }
 
 void MainWindow::tab0_GodSon_CityCheckBox_stateChanged(int arg1)
 {
-    if (arg1 == 0)
+    //Lock City filter field if not needed
+    if (arg1)
     {
         ui->tab0_GodSon_City->setEnabled(0);
+        //Also disable Neighborhood checkbox and uncheck it (chain reaction to neighborhood filter field
         ui->tab0_GodSon_NeighborhoodCheckBox->setChecked(0);
         ui->tab0_GodSon_NeighborhoodCheckBox->setEnabled(0);
     }
     else
     {
         ui->tab0_GodSon_City->setEnabled(1);
+        //Just enable the neighborhood checkbox to use
         ui->tab0_GodSon_NeighborhoodCheckBox->setEnabled(1);
     }
+    //Requery
     tab0_Query();
 }
 
 void MainWindow::tab0_GodSon_City_currentIndexChanged(int index)
 {
-    index += 1;
+    //Change the neighborhood avail, acording to the City selected
+
+    index += 1; //Compensate for the list offset, related to the database index (starting at 1)
 
     QSqlQuery setData;
     setData.prepare("SELECT Name FROM Place WHERE ID_City = :id");
     setData.bindValue(":id", index);
     setData.exec();
+    //Get neighborhood list
     QStringList temp = tab0_neighborhoods;
     tab0_neighborhoods.clear();
     while(setData.next())
     {
         tab0_neighborhoods.append(setData.value("Name").toString());
     }
+    //Check for difference with the actual list. If not, dont do anything
     if (temp != tab0_neighborhoods)
     {
         ui->tab0_GodSon_Neighborhood->clear();
         ui->tab0_GodSon_Neighborhood->addItems(tab0_neighborhoods);
     }
+    //Requery
     tab0_Query();
 }
 
 void MainWindow::tab0_GodSon_NeighborhoodCheckBox_stateChanged(int arg1)
 {
+    //Disable/Enable the Neighborhood filter field as desired, according to the Neighborhood-avail checkbox
     if (arg1 == 0)
     {
         ui->tab0_GodSon_Neighborhood->setEnabled(0);
@@ -543,38 +590,44 @@ void MainWindow::tab0_GodSon_NeighborhoodCheckBox_stateChanged(int arg1)
     {
         ui->tab0_GodSon_Neighborhood->setEnabled(1);
     }
+    //Requery
     tab0_Query();
 }
 
 void MainWindow::tab0_GodParent_ID_textChanged(const QString &arg1)
 {
+    //Check for valid input on the GodParent ID. Change the color to Red otherwhise
     QPalette *palette = new QPalette();
 
     if(!arg1.isEmpty())
     {
         QString workString = arg1;
+        //Fill the working string with dummy data. Using number since in the 2, 3 and 4 places are valid. Not needed for the first one, since empty check first
         for (int i = arg1.size(); i<4; i++)
         {
             workString.append(QString::number(0));
         }
-
+        //Check for validity
         if(!(workString[0].isNumber() && workString[1].isNumber() && workString[2].isNumber() && workString[3].isNumber()))
         {
+            //Change to RED if invalid
             palette->setColor(QPalette::Text,Qt::red);
             ui->tab0_GodParent_ID->setPalette(*palette);
         }
         else
         {
+            //Change to BLACK if valid
             palette->setColor(QPalette::Text,Qt::black);
             ui->tab0_GodParent_ID->setPalette(*palette);
         }
     }
     else
     {
+        //Change the cursor back to black if now empty and in case of previous error
         palette->setColor(QPalette::Text,Qt::black);
         ui->tab0_GodParent_ID->setPalette(*palette);
     }
-
+    //Requery
     tab0_Query();
 }
 
@@ -595,9 +648,16 @@ void MainWindow::tab0_Erase_clicked()
 
 }
 
+void MainWindow::tab0$1_goBack_clicked()
+{
+    ui->tabWidget->setCurrentIndex(0);
+}
+
 void MainWindow::tab0_TableView_doubleClicked(const QModelIndex &index)
 {
-    tab0_searchIndex = ui->tab0_TableView->model()->data(ui->tab0_TableView->model()->index(index.row(), 0)).toString();
+    tab1_searchIndex = ui->tab0_TableView->model()->data(ui->tab0_TableView->model()->index(index.row(), 0)).toString();
+    disconnect(ui->tab1_goBack, 0, 0, 0);
+    connect(ui->tab1_goBack, SIGNAL(clicked()), this, SLOT(tab0$1_goBack_clicked()));
     tab1_loadData();
     ui->tabWidget->setCurrentIndex(1);
 }
@@ -605,12 +665,14 @@ void MainWindow::tab0_TableView_doubleClicked(const QModelIndex &index)
 void MainWindow::tab0_SearchOpen_clicked()
 {
     int index = ui->tab0_TableView->selectionModel()->currentIndex().row();
-    tab0_searchIndex = ui->tab0_TableView->model()->data(ui->tab0_TableView->model()->index(index, 0)).toString();
+    tab1_searchIndex = ui->tab0_TableView->model()->data(ui->tab0_TableView->model()->index(index, 0)).toString();
 
-    if (tab0_searchIndex.isEmpty())
+    if (tab1_searchIndex.isEmpty())
     {
         return;
     }
+    disconnect(ui->tab1_goBack, 0, 0, 0);
+    connect(ui->tab1_goBack, SIGNAL(clicked()), this, SLOT(tab0$1_goBack_clicked()));
     tab1_loadData();
     ui->tabWidget->setCurrentIndex(1);
 }
@@ -656,23 +718,62 @@ void MainWindow::tab1_setEditMode(bool status)
     {
         comboBox->setEnabled(status);
     }
+
     if (status)
     {
-        ui->tab1_ProgramData_GodParent_Edit->show();
-        ui->tab1_ProgramData_GodParent_Edit_Spacer->changeSize(40,20, QSizePolicy::Expanding);
-        ui->tab1_saveChanges->show();
         ui->tab1_Visits_LastVisit_Date->setReadOnly(true);
         ui->tab1_Visits_LastVisit_Date->setButtonSymbols(QAbstractSpinBox::NoButtons);
         ui->tab1_Visits_LastVisit_Meeting->setEnabled(false);
         ui->tab1_Visits_LastVisit_GeneralStatus->setEnabled(false);
         ui->tab1_Visits_LastVisit_Comment->setReadOnly(true);
-        ui->tab1_InChargeOf_Regional->setEnabled(false);
+
+        ui->tab1_ProgramData_GodParent_Edit->setVisible(false);
+        ui->tab1_saveChanges->setVisible(true);
+        ui->tab1_goBack->setVisible(false);
+        ui->tab1_edit->setText("Cancelar");
+        ui->tab1_edit->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
+        ui->tab1_Visits_Open->setVisible(false);
+        ui->tab1_ProgramData_Remove->setVisible(false);
     }
     else
     {
-        ui->tab1_ProgramData_GodParent_Edit->hide();
-        ui->tab1_ProgramData_GodParent_Edit_Spacer->changeSize(0,0, QSizePolicy::Maximum, QSizePolicy::Maximum);
-        ui->tab1_saveChanges->hide();
+        ui->tab1_ProgramData_GodParent_Edit->setVisible(true);
+        ui->tab1_saveChanges->setVisible(false);
+        ui->tab1_goBack->setVisible(true);
+        ui->tab1_edit->setText("Editar");
+        ui->tab1_edit->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Edit_Icon.png")));
+        ui->tab1_Visits_Open->setVisible(true);
+        ui->tab1_ProgramData_Remove->setVisible(true);
+    }
+
+}
+
+void MainWindow::tab1_edit_clicked()
+{
+    if (!tab1_editMode)
+    {
+        tab1_setEditMode(true);
+    }
+    else
+    {
+        QMessageBox cancel(
+                    QMessageBox::Warning,
+                    "Confirmar",
+                    "Realmente desea cancelar la edición e ignorar los cambios?",
+                    QMessageBox::Yes | QMessageBox::No);
+        cancel.setButtonText(QMessageBox::Yes, "Si");
+        cancel.setButtonText(QMessageBox::No, "No");
+        cancel.setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
+
+        switch(cancel.exec())
+        {
+        case (QMessageBox::No):
+            break;
+        case (QMessageBox::Yes):
+            tab1_setEditMode(false);
+            tab1_loadData();
+            break;
+        }
     }
 }
 
@@ -698,50 +799,6 @@ void MainWindow::tab1_basicInfo_City_currentIndexChanged(int index)
 
 }
 
-void MainWindow::tab1_goBack_clicked()
-{
-    ui->tabWidget->setCurrentIndex(0);
-}
-
-void MainWindow::tab1_edit_clicked()
-{
-    if (!tab1_editMode)
-    {
-        ui->tab1_goBack->setVisible(false);
-        ui->tab1_saveChanges->setVisible(true);
-        ui->tab1_edit->setText("Cancelar");
-        ui->tab1_edit->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
-
-        tab1_setEditMode(!tab1_editMode);
-    }
-    else
-    {
-        QMessageBox cancel(
-                    QMessageBox::Warning,
-                    "Confirmar",
-                    "Realmente desea cancelar la edición e ignorar los cambios?",
-                    QMessageBox::Yes | QMessageBox::No);
-        cancel.setButtonText(QMessageBox::Yes, "Si");
-        cancel.setButtonText(QMessageBox::No, "No");
-        cancel.setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
-
-        switch(cancel.exec())
-        {
-        case (QMessageBox::No):
-            break;
-        case (QMessageBox::Yes):
-            tab1_setEditMode(false);
-            tab1_loadData();
-            ui->tab1_goBack->setVisible(true);
-            ui->tab1_saveChanges->setVisible(false);
-            ui->tab1_edit->setText("Editar");
-            ui->tab1_edit->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Edit_Icon.png")));
-            break;
-        }
-    }
-}
-
-
 void MainWindow::tab1_save_clicked()
 {
     QMessageBox cancel(
@@ -760,9 +817,6 @@ void MainWindow::tab1_save_clicked()
     case (QMessageBox::Yes):
         tab1_saveData();
         tab1_setEditMode(false);
-        ui->tab1_goBack->setVisible(true);
-        ui->tab1_saveChanges->setVisible(false);
-        ui->tab1_edit->setText("Editar");
         tab1_loadData();
         break;
     }
@@ -772,7 +826,7 @@ void MainWindow::tab1_loadData()
 {
     QSqlQuery query;
     query.prepare("SELECT * FROM Godsons WHERE ID_Code = :id");
-    query.bindValue(":id", tab0_searchIndex);
+    query.bindValue(":id", tab1_searchIndex);
     query.exec();
     query.next();
     if (query.value("ProgramMemberAvail").toBool())
@@ -864,14 +918,25 @@ void MainWindow::tab1_loadData()
     ui->tab1_BasicInfo_City->setCurrentIndex(query2.value("City").toInt() - 1);
     ui->tab1_BasicInfo_Neighborhood->setCurrentText(query2.value("Neigborhood").toString());
 
-    query2.clear();
-    query2.prepare("SELECT GodParents.FirstName, GodParents.LastName FROM GodParents WHERE GodParents.ID_GodParent = :gp");
-    query2.bindValue(":gp", query.value("ID_GodParent").toInt());
-    query2.exec();
-    query2.next();
-    ui->tab1_ProgramData_GodParent_ID->setText(query.value("ID_GodParent").toString());
-    ui->tab1_ProgramData_GodParent_Name->setText(query2.value("FirstName").toString());
-    ui->tab1_ProgramData_GodParent_Surname->setText(query2.value("LastName").toString());
+    if (query.value("ID_GodParent").toBool())
+    {
+        tab1_godParentAvail = true;
+        query2.clear();
+        query2.prepare("SELECT GodParents.FirstName, GodParents.LastName FROM GodParents WHERE GodParents.ID_GodParent = :gp");
+        query2.bindValue(":gp", query.value("ID_GodParent").toInt());
+        query2.exec();
+        query2.next();
+        ui->tab1_ProgramData_GodParent_ID->setText(query.value("ID_GodParent").toString());
+        ui->tab1_ProgramData_GodParent_Name->setText(query2.value("FirstName").toString());
+        ui->tab1_ProgramData_GodParent_Surname->setText(query2.value("LastName").toString());
+    }
+    else
+    {
+        tab1_godParentAvail = false;
+        ui->tab1_ProgramData_GodParent_ID->setText("-");
+        ui->tab1_ProgramData_GodParent_Name->setText("-");
+        ui->tab1_ProgramData_GodParent_Surname->setText("-");
+    }
 
     query2.clear();
     tab1_ICOid = query.value("ID_InChargeOf").toInt();
@@ -892,7 +957,7 @@ void MainWindow::tab1_loadData()
 
     query2.clear();
     query2.prepare("SELECT Visits.Date AS 'Fecha', CASE (Visits.Meeting) WHEN 1 THEN 'Si'ELSE 'No' END AS 'Encuentro?', CASE (Visits.GeneralStatus) WHEN 0 THEN 'Bueno' WHEN 1 THEN 'Regular' WHEN 2 THEN 'Malo' ELSE 'Muy Malo' END AS 'Estado General' FROM Visits WHERE Visits.ID_GodsonCode = :id ORDER BY Visits.Date DESC");
-    query2.bindValue(":id", tab0_searchIndex);
+    query2.bindValue(":id", tab1_searchIndex);
     query2.exec();
     tab1_model = new QSqlQueryModel;
     tab1_model->setQuery(query2);
@@ -901,7 +966,7 @@ void MainWindow::tab1_loadData()
     query2.clear();
 
     query2.prepare("SELECT Visits.Date, Visits.Meeting, Visits.GeneralStatus, Visits.Comment FROM Visits WHERE Visits.ID_GodsonCode = :id ORDER BY Visits.Date DESC LIMIT 1");
-    query2.bindValue(":id", tab0_searchIndex);
+    query2.bindValue(":id", tab1_searchIndex);
     query2.exec();
     query2.next();
     ui->tab1_Visits_LastVisit_Date->setDate(QDate::fromString(query2.value("Date").toString(),"dd/MM/yyyy"));
@@ -998,7 +1063,7 @@ void MainWindow::tab1_saveData()
         query.bindValue(":idinchargeof", tab1_ICOid);
     }
 
-    query.bindValue(":id", tab0_searchIndex);
+    query.bindValue(":id", tab1_searchIndex);
     query.exec();
 }
 
@@ -1090,14 +1155,28 @@ void MainWindow::tab1_ProgramData_Accept()
         query.prepare("UPDATE Godsons SET ProgramMemberAvail = 0, ProgramOutDate = :out, ProgramOutCause = :cause WHERE ID_Code = :id");
         query.bindValue(":out", QDate::currentDate().toString("dd/MM/yyyy"));
         query.bindValue(":cause", ui->tab1_ProgramData_To_Cause->toPlainText());
-        query.bindValue(":id", tab0_searchIndex);
+        query.bindValue(":id", tab1_searchIndex);
         query.exec();
         ui->tab1_ProgramData_To_Accept->hide();
         ui->tab1_ProgramData_To_Cancel->hide();
         break;
     }
-
 }
+
+void MainWindow::tab1$7_ProgramData_Edit_goBack_clicked()
+{
+    ui->tabWidget->setCurrentIndex(1);
+}
+
+void MainWindow::tab1_ProgramData_Edit()
+{
+    tab7_searchIndex = ui->tab1_ProgramData_GodParent_ID->text();
+    disconnect(ui->tab7_goBack, 0, 0, 0);
+    connect(ui->tab7_goBack, SIGNAL(clicked()), this, SLOT(tab1$7_ProgramData_Edit_goBack_clicked()));
+    tab7_loadData();
+    ui->tabWidget->setCurrentIndex(7);
+}
+
 //--------------------------------------------------------------------------
 //Tab2
 void MainWindow::tab2_Next_clicked()
@@ -1253,21 +1332,30 @@ void MainWindow::tab6_Erase_clicked()
 void MainWindow::tab6_SearchOpen_clicked()
 {
     int index = ui->tab6_tableView->selectionModel()->currentIndex().row();
-    tab6_searchIndex = ui->tab6_tableView->model()->data(ui->tab6_tableView->model()->index(index, 0)).toString();
+    tab7_searchIndex = ui->tab6_tableView->model()->data(ui->tab6_tableView->model()->index(index, 0)).toString();
 
-    if (tab6_searchIndex.isEmpty())
+    if (tab7_searchIndex.isEmpty())
     {
         return;
     }
+    disconnect(ui->tab7_goBack, 0, 0, 0);
+    connect(ui->tab7_goBack, SIGNAL(clicked()), this, SLOT(tab6$7_goBack_clicked()));
     tab7_loadData();
     ui->tabWidget->setCurrentIndex(7);
 }
 
 void MainWindow::tab6_TableView_doubleClicked(const QModelIndex &index)
 {
-    tab6_searchIndex = ui->tab6_tableView->model()->data(ui->tab6_tableView->model()->index(index.row(), 0)).toString();
+    tab7_searchIndex = ui->tab6_tableView->model()->data(ui->tab6_tableView->model()->index(index.row(), 0)).toString();
+    disconnect(ui->tab1_goBack, 0, 0, 0);
+    connect(ui->tab7_goBack, SIGNAL(clicked()), this, SLOT(tab6$7_goBack_clicked()));
     tab7_loadData();
     ui->tabWidget->setCurrentIndex(7);
+}
+
+void MainWindow::tab6$7_goBack_clicked()
+{
+    ui->tabWidget->setCurrentIndex(6);
 }
 
 //--------------------------------------------------------------------------
@@ -1279,8 +1367,7 @@ void MainWindow::tab7_loadData()
     QSqlQuery query;
 
     query.prepare("SELECT * FROM GodParents WHERE GodParents.ID_GodParent = :id");
-    qDebug() <<tab6_searchIndex;
-    query.bindValue(":id", tab6_searchIndex);
+    query.bindValue(":id", tab7_searchIndex);
     query.exec();
     query.next();
 
@@ -1307,7 +1394,247 @@ void MainWindow::tab7_loadData()
     ui->tab7_Godsons_Table->setModel(tab7_model);
 }
 
-void MainWindow::tab7_goBack_clicked()
+void MainWindow::tab7_saveData()
 {
-    ui->tabWidget->setCurrentIndex(6);
+    QSqlQuery query;
+
+    query.prepare("UPDATE GodParents SET FirstName = :name, LastName = :surname, Email = :email, Telephone = :tel, CellPhone = :cel, Country = :country, State = :state, City = :city, Address = :address, ZipCode = :zip, Comment = :comment WHERE ID_GodParent = :id");
+    query.bindValue(":id", tab7_searchIndex);
+    query.bindValue(":name", ui->tab7_Name->text());
+    query.bindValue(":surname", ui->tab7_Surname->text());
+    query.bindValue(":email", ui->tab7_Email->text());
+    query.bindValue(":tel", ui->tab7_Tel->text());
+    query.bindValue(":cel", ui->tab7_Cel->text());
+    query.bindValue(":country", ui->tab7_Country->text());
+    query.bindValue(":state", ui->tab7_State->text());
+    query.bindValue(":city", ui->tab7_City->text());
+    query.bindValue(":address", ui->tab7_Address->text());
+    query.bindValue(":zip", ui->tab7_Zip->text());
+    query.bindValue(":comment", ui->tab7_Comment->toPlainText());
+
+    query.exec();
+
 }
+
+void MainWindow::tab7_setEditMode(bool status)
+{
+    tab7_editMode = status;
+
+    QList <QLineEdit*> lineEdit_List = ui->tab_adminGodparentView->findChildren<QLineEdit*>();
+    foreach(QLineEdit* lineEdit, lineEdit_List)
+    {
+        lineEdit->setReadOnly(!status);
+    }
+
+    ui->tab7_Comment->setReadOnly(!status);
+    ui->tab7_Date->setReadOnly(!status);
+    ui->tab7_saveChanges->setVisible(status);
+    ui->tab7_Delete->setVisible(false);
+    if (status)
+    {
+        ui->tab7_Date->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
+    }
+    else
+    {
+        ui->tab7_Date->setButtonSymbols(QAbstractSpinBox::NoButtons);
+    }
+}
+
+void MainWindow::tab7_edit_clicked()
+{
+    if (!tab7_editMode)
+    {
+        ui->tab7_goBack->setVisible(false);
+        ui->tab7_saveChanges->setVisible(true);
+        ui->tab7_Delete->setVisible(true);
+        ui->tab7_Delete->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Delete_Icon.png")));
+        ui->tab7_edit->setText("Cancelar");
+        ui->tab7_edit->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
+        ui->tab7_Disconnect->setVisible(true);
+        if(ui->tab7_Godsons_Table->verticalHeader()->count())
+        {
+            ui->tab7_Disconnect->setVisible(true);
+        }
+
+        tab7_setEditMode(!tab7_editMode);
+    }
+    else
+    {
+        QMessageBox cancel(
+                    QMessageBox::Warning,
+                    "Confirmar",
+                    "Realmente desea cancelar la edición e ignorar los cambios?",
+                    QMessageBox::Yes | QMessageBox::No);
+        cancel.setButtonText(QMessageBox::Yes, "Si");
+        cancel.setButtonText(QMessageBox::No, "No");
+        cancel.setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
+
+        switch(cancel.exec())
+        {
+        case (QMessageBox::No):
+            break;
+        case (QMessageBox::Yes):
+            tab7_setEditMode(false);
+            tab7_loadData();
+            ui->tab7_goBack->setVisible(true);
+            ui->tab7_saveChanges->setVisible(false);
+            ui->tab7_edit->setText("Editar");
+            ui->tab7_edit->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Edit_Icon.png")));
+            break;
+        }
+    }
+}
+
+void MainWindow::tab7_save_clicked()
+{
+    QMessageBox cancel(
+                QMessageBox::Warning,
+                "Confirmar",
+                "Realmente desea guardar los Cambios?\nNota: Las conecciones Padrino-Ahijado que hayan sido alteradas ya se han guardado cuando usted ha hecho la desconeccón",
+                QMessageBox::Yes | QMessageBox::No);
+    cancel.setButtonText(QMessageBox::Yes, "Si");
+    cancel.setButtonText(QMessageBox::No, "No");
+    cancel.setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/Save_Icon.png")));
+
+    switch(cancel.exec())
+    {
+    case (QMessageBox::No):
+        break;
+    case (QMessageBox::Yes):
+        tab7_saveData();
+        tab7_setEditMode(false);
+        ui->tab7_goBack->setVisible(true);
+        ui->tab7_saveChanges->setVisible(false);
+        ui->tab1_edit->setText("Editar");
+        tab7_loadData();
+        break;
+    }
+}
+
+void MainWindow::tab7_delete_clicked()
+{
+    QMessageBox cancel(
+                QMessageBox::Warning,
+                "Confirmar",
+                "Desea BORRAR a este Padrino?\nSe desconectará automaticamente a los Ahijados correspondientes. Esto ocacionará cambios en el historial de apadrinazgos.",
+                QMessageBox::Yes | QMessageBox::No);
+    cancel.setButtonText(QMessageBox::Yes, "Si");
+    cancel.setButtonText(QMessageBox::No, "No");
+    cancel.setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
+
+    switch (cancel.exec())
+    {
+    case (QMessageBox::No):
+        break;
+    case (QMessageBox::Yes):
+        QMessageBox confirm(
+                    QMessageBox::Warning,
+                    "Alerta!",
+                    "Esta acción es irreversible!\nSe recomienda en se lugar desconectar todos los Ahijados.\n\n Está realmente seguro de que quiere continuar??",
+                    QMessageBox::Yes | QMessageBox::No);
+        confirm.setButtonText(QMessageBox::Yes, "Si");
+        confirm.setButtonText(QMessageBox::No, "No");
+        confirm.setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
+
+        switch(confirm.exec())
+        {
+        case (QMessageBox::No):
+            break;
+        case (QMessageBox::Yes):
+
+            QSqlQuery query;
+            query.prepare("DELETE FROM GodParents WHERE ID_GodParent = :id");
+            query.bindValue(":id", tab7_searchIndex);
+
+            int rowCount = ui->tab7_Godsons_Table->verticalHeader()->count();
+            for (int i = 0; i < rowCount; i++)
+            {
+                QString disconnectIndex = ui->tab7_Godsons_Table->model()->data(ui->tab7_Godsons_Table->model()->index(i, 0)).toString();
+                tab7_disconnect(disconnectIndex);
+            }
+
+            if (query.exec())
+            {
+                QMessageBox *message = new QMessageBox;
+                message->setText("Se ha completado la operación");
+
+                tab6_Query();
+                ui->tabWidget->setCurrentIndex(6);
+            }
+        }
+    }
+}
+
+void MainWindow::tab7$1_open_goBack_clicked()
+{
+    ui->tabWidget->setCurrentIndex(7);
+}
+
+void MainWindow::tab7_open_clicked()
+{
+    int index = ui->tab7_Godsons_Table->selectionModel()->currentIndex().row();
+    tab1_searchIndex = ui->tab7_Godsons_Table->model()->data(ui->tab7_Godsons_Table->model()->index(index, 0)).toString();
+
+    if (tab1_searchIndex.isEmpty())
+    {
+        return;
+    }
+
+    tab1_loadData();
+    disconnect(ui->tab1_goBack, 0, 0, 0);
+    connect(ui->tab1_goBack, SIGNAL(clicked()), this, SLOT(tab7$1_open_goBack_clicked()));
+    ui->tabWidget->setCurrentIndex(1);
+}
+
+void MainWindow::tab7_Godsons_Table_doubleClicked(const QModelIndex &index)
+{
+    tab1_searchIndex = ui->tab7_Godsons_Table->model()->data(ui->tab7_Godsons_Table->model()->index(index.row(), 0)).toString();
+
+    tab1_loadData();
+    disconnect(ui->tab1_goBack, 0, 0, 0);
+    connect(ui->tab1_goBack, SIGNAL(clicked()), this, SLOT(tab7$1_open_goBack_clicked()));
+    ui->tabWidget->setCurrentIndex(1);
+}
+
+bool MainWindow::tab7_disconnect(QString index)
+{
+    QSqlQuery query;
+    query.prepare("UPDATE Godsons SET ID_GodParent = 0 WHERE ID_Code = :id");
+    query.bindValue(":id", index);
+    if(query.exec())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void MainWindow::tab7_disconnect_clicked()
+{
+    QMessageBox confirm(
+                QMessageBox::Warning,
+                "Confirmar",
+                "Realmente desea desconectar al Ahijado de su Padrino actual?",
+                QMessageBox::Yes | QMessageBox::No);
+    confirm.setButtonText(QMessageBox::Yes, "Si");
+    confirm.setButtonText(QMessageBox::No, "No");
+    confirm.setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
+
+    switch(confirm.exec())
+    {
+    case (QMessageBox::No):
+        break;
+    case (QMessageBox::Yes):
+        int index = ui->tab7_Godsons_Table->selectionModel()->currentIndex().row();
+        QString disconnectIndex = ui->tab7_Godsons_Table->model()->data(ui->tab7_Godsons_Table->model()->index(index, 0)).toString();
+        if (tab7_disconnect(disconnectIndex))
+        {
+            QMessageBox *message = new QMessageBox;
+            message->setText("Se ha completado la operación");
+        }
+        tab7_loadData();
+    }
+}
+

@@ -48,6 +48,7 @@ void SQLConsole::ok_clicked()
         message->setWindowTitle("Error");
         message->setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
         message->exec();
+        delete message;
         this->close();
     }
     else

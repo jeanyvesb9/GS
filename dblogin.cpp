@@ -40,7 +40,7 @@ void DBLogin::connected(bool dbconnected)
     else
     {
         connectionStat = false;
-         ui->connectionStatus->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:10pt; font-weight:600; color:#ff0000;\">Archivo Inválido</span></p></body></html>");
+        ui->connectionStatus->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:10pt; font-weight:600; color:#ff0000;\">Archivo Inválido</span></p></body></html>");
     }
 }
 
