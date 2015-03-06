@@ -1,0 +1,33 @@
+DO center the tableview: visit meeting column
+
+IMPLEMENT the auto inchareof regional id autocomplete
+IMPLEMENT payments
+IMPLEMENT gmail client
+
+REIMPLEMENT accents in dialogs
+IMPLEMENT translations
+
+IMPLEMENT relationship history (in database)
+IMPLEMENT query error exception
+IMPLEMENT disconnect when godparent deleted, return original values in case of error
+
+IMPLEMENT printAction - when toggled/untoggled automaticaly select corresponding print page, and deselect
+ 	  automaticaly when other action triggered
+
+IMPLEMENT actions cancel mesage when editting or making relationship
+IMPLEMENT send email checkbox on ap3
+
+IMPLEMENT email action in toolbar after print
+
+IMPLEMENT images
+IMPLEMENT relationship images
+
+
+
+
+
+
+
+
+
+WRITE program for doing this
