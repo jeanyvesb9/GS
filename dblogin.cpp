@@ -7,7 +7,6 @@ DBLogin::DBLogin(QWidget *parent) :
 {
     //Login window init
     ui->setupUi(this);
-    qDebug() << exePath.absolutePath();
     this->setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/DatabaseLogin_Icon.png")));
     this->setWindowTitle("Iniciar Base de Datos");
     this->setFixedSize(440,100);

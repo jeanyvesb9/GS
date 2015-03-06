@@ -36,6 +36,7 @@ private slots:
     void on_actionNuevo_Padrino_triggered();
     void on_actionAdministrar_Padrinos_triggered();
     void on_actionAdministrar_Ahijados_triggered();
+
     void on_actionImprimir_triggered();
 
     void actionSQLConsole();
@@ -69,7 +70,22 @@ private slots:
     void tab1$7_ProgramData_Edit_goBack_clicked();
 
     //Tab2
+    void tab2_Query_Slot();
+    void tab2_ID_textChanged(const QString &arg1);
     void tab2_Next_clicked();
+    void tab2_Table_doubleClicked(const QModelIndex &index);
+
+    //Tab3
+    void tab3_Query_Slot();
+    void tab3_GodSons_ID_textChanged(const QString &arg1);
+    void tab3_Back_clicked();
+    void tab3_Next_clicked();
+    void tab3_Table_doubleClicked(const QModelIndex &index);
+
+    //Tab4
+    void tab4_Back_clicked();
+    void tab4_End_clicked();
+
 
     //Tab5
     void tab5_Erase_clicked();
@@ -84,6 +100,7 @@ private slots:
     void tab6$7_goBack_clicked();
 
     //Tab7
+    void tab7_Prepare(bool status);
     void tab7_edit_clicked();
     void tab7_save_clicked();
     void tab7_delete_clicked();
@@ -109,6 +126,9 @@ private:
     QStringList GeneralStatus;
     QStringList StudyDistance;
     int getAge(QDate date);
+    QList <int> getPlace(bool cityAvail, int ID_City, bool neighAvail, QString Neighborhood_Name);
+    void disableMenus(bool status);
+    bool menuDisabled;
 
     //Tab0
     void tab0_Query();
@@ -129,6 +149,20 @@ private:
     int tab1_ICOage;
     bool tab1_isRegional;
 
+    //Tab2
+    QSqlQueryModel *tab2_model;
+    QString tab2_GodParent;
+    void tab2_Query();
+
+    //Tab3
+    QSqlQueryModel *tab3_model;
+    QString tab3_GodSon;
+    void tab3_Query();
+
+    //Tab4
+    void tab4_loadData();
+    void tab4_saveData();
+
     //Tab5
     void tab5_erase();
 
@@ -143,7 +177,7 @@ private:
     QSqlQueryModel *tab7_model;
     void tab7_setEditMode(bool status);
     bool tab7_editMode;
-    bool tab7_disconnect(QString index);
+    void tab7_disconnect(QString index);
 
 
 };
