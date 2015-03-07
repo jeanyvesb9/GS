@@ -77,10 +77,16 @@ private slots:
 
     //Tab3
     void tab3_Query_Slot();
-    void tab3_GodSons_ID_textChanged(const QString &arg1);
+    void tab3_GodSon_ID_textChanged(const QString &arg1);
+    void tab3_GodSon_DateCheckBox_stateChanged(bool arg1);
+    void tab3_GodSon_CityCheckBox_stateChanged(bool arg1);
+    void tab3_GodSon_City_currentIndexChanged(int index);
+    void tab3_GodSon_NeighborhoodCheckBox_stateChanged(bool arg1);
     void tab3_Back_clicked();
     void tab3_Next_clicked();
     void tab3_Table_doubleClicked(const QModelIndex &index);
+    void tab3_Open();
+    void tab3$1_Open_goBack_clicked();
 
     //Tab4
     void tab4_Back_clicked();
@@ -129,6 +135,7 @@ private:
     QList <int> getPlace(bool cityAvail, int ID_City, bool neighAvail, QString Neighborhood_Name);
     void disableMenus(bool status);
     bool menuDisabled;
+    int previousTab;
 
     //Tab0
     void tab0_Query();
@@ -153,11 +160,14 @@ private:
     QSqlQueryModel *tab2_model;
     QString tab2_GodParent;
     void tab2_Query();
+    void tab2_Erase();
 
     //Tab3
     QSqlQueryModel *tab3_model;
     QString tab3_GodSon;
+    QStringList tab3_neighborhoods;
     void tab3_Query();
+    void tab3_Erase();
 
     //Tab4
     void tab4_loadData();

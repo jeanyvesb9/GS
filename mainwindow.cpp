@@ -187,6 +187,7 @@ MainWindow::MainWindow(QWidget *parent) :
         {
             ui->tab1_School_Distance->addItem(item);
         }
+        ui->tab1_School_Year->addItem("Nunca asistió");
         for(int i = 1; i<=12; i++)
         {
             ui->tab1_School_Year->addItem(QString::number(i).append("° Año"));
@@ -204,20 +205,61 @@ MainWindow::MainWindow(QWidget *parent) :
 
         tab1_setEditMode(false);
 
-
-
-
-
-
-
-
         //--------------------------------------------------------------------------
         //Tab2
+        connect(ui->tab2_ID, SIGNAL(textChanged(QString)), this, SLOT(tab2_ID_textChanged(QString)));
+        connect(ui->tab2_Name, SIGNAL(textChanged(QString)), this, SLOT(tab2_Query_Slot()));
+        connect(ui->tab2_Surname, SIGNAL(textChanged(QString)), this, SLOT(tab2_Query_Slot()));
+        connect(ui->tab2_Next, SIGNAL(clicked()), this, SLOT(tab2_Next_clicked()));
+        connect(ui->tab2_Table, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tab2_Table_doubleClicked(QModelIndex)));
 
+        ui->tab2_ID->setMaxLength(4);
 
+        ui->tab2_Next->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Next_Icon.png")));
 
-		//--------------------------------------------------------------------------
-		//Tab5
+        ui->tab2_Table->setSelectionBehavior(QAbstractItemView::SelectRows);
+        ui->tab2_Table->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->tab2_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        ui->tab2_Table->verticalHeader()->setVisible(false);
+
+        //--------------------------------------------------------------------------
+        //Tab3
+        connect(ui->tab3_GodSon_ID, SIGNAL(textChanged(QString)), this, SLOT(tab3_GodSon_ID_textChanged(QString)));
+        connect(ui->tab3_GodSon_Name, SIGNAL(textChanged(QString)), this, SLOT(tab3_Query_Slot()));
+        connect(ui->tab3_GodSon_Surname, SIGNAL(textChanged(QString)), this, SLOT(tab3_Query_Slot()));
+        connect(ui->tab3_GodSon_DateCheckBox, SIGNAL(clicked(bool)), this, SLOT(tab3_GodSon_DateCheckBox_stateChanged(bool)));
+        connect(ui->tab3_GodSon_Date, SIGNAL(dateChanged(QDate)), this, SLOT(tab3_Query_Slot()));
+        connect(ui->tab3_GodSon_CityCheckBox, SIGNAL(clicked(bool)), this, SLOT(tab3_GodSon_CityCheckBox_stateChanged(bool)));
+        connect(ui->tab3_GodSon_City, SIGNAL(currentIndexChanged(int)), this, SLOT(tab3_GodSon_City_currentIndexChanged(int)));
+        connect(ui->tab3_GodSon_NeighborhoodCheckBox, SIGNAL(clicked(bool)), this, SLOT(tab3_GodSon_NeighborhoodCheckBox_stateChanged(bool)));
+        connect(ui->tab3_GodSon_Neighborhood, SIGNAL(currentIndexChanged(int)), this, SLOT(tab3_Query_Slot()));
+        connect(ui->tab3_Back, SIGNAL(clicked()), this, SLOT(tab3_Back_clicked()));
+        connect(ui->tab3_Next, SIGNAL(clicked()), this, SLOT(tab3_Next_clicked()));
+        connect(ui->tab3_Table, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tab3_Table_doubleClicked(QModelIndex)));
+        connect(ui->tab3_Open, SIGNAL(clicked()), this, SLOT(tab3_Open()));
+
+        ui->tab3_GodSon_City->addItems(cities);
+        ui->tab3_GodSon_ID->setMaxLength(4);
+        ui->tab3_GodSon_Neighborhood->addItems(tab0_neighborhoods);
+
+        ui->tab3_Back->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Back_Icon.png")));
+        ui->tab3_Next->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Next_Icon.png")));
+
+        ui->tab3_Table->setSelectionBehavior(QAbstractItemView::SelectRows);
+        ui->tab3_Table->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->tab3_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        ui->tab3_Table->verticalHeader()->setVisible(false);
+
+        //--------------------------------------------------------------------------
+        //Tab4
+        connect(ui->tab4_Back, SIGNAL(clicked()), this, SLOT(tab4_Back_clicked()));
+        connect(ui->tab4_End, SIGNAL(clicked()), this, SLOT(tab4_End_clicked()));
+
+        ui->tab4_Back->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Back_Icon.png")));
+        ui->tab4_End->setIcon(QIcon(exePath.absolutePath().append("/resources/icons/Ok_Icon.png")));
+
+        //--------------------------------------------------------------------------
+        //Tab5
         connect(ui->tab5_Erase, SIGNAL(clicked()), this, SLOT(tab5_Erase_clicked()));
         connect(ui->tab5_Create, SIGNAL(clicked()), this, SLOT(tab5_Create_clicked()));
 
@@ -407,12 +449,17 @@ void MainWindow::tabWidget_indexChanged(int index)
     {
     case 0:
         ui->TitleLabel->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:18pt; font-weight:600; color:#000000;\">Buscar Ahijado</span></p></body></html>");
+        tab0_Erase_clicked();
+        tab0_Query();
         break;
     case 1:
         ui->TitleLabel->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:18pt; font-weight:600; color:#000000;\">Ver Ahijado</span></p></body></html>");
         break;
     case 2:
         ui->TitleLabel->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:18pt; font-weight:600; color:#000000;\">Apadrinar</span></p></body></html>");
+        tab2_Erase();
+        tab3_Erase();
+        tab2_Query();
         break;
     case 5:
         ui->TitleLabel->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:18pt; font-weight:600; color:#000000;\">Nuevo Padrino</span></p></body></html>");
@@ -420,12 +467,12 @@ void MainWindow::tabWidget_indexChanged(int index)
         break;
     case 6:
         ui->TitleLabel->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:18pt; font-weight:600; color:#000000;\">Administrar Padrinos</span></p></body></html>");
+        tab6_Erase_clicked();
+        tab6_Query();
         break;
     case 7:
         ui->TitleLabel->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:18pt; font-weight:600; color:#000000;\">Ver Padrino</span></p></body></html>");
         break;
-
-
     }
 }
 //--------------------------------------------------------------------------
@@ -566,34 +613,21 @@ void MainWindow::tab0_GodSon_ID_textChanged(const QString &arg1)
 void MainWindow::tab0_GodSon_DateCheckBox_stateChanged(int arg1)
 {
     //Lock Date filter field if not needed
-    if (arg1)
-    {
-        ui->tab0_GodSon_Date->setEnabled(0);
-    }
-    else
-    {
-        ui->tab0_GodSon_Date->setEnabled(1);
-    }
+    ui->tab0_GodSon_Date->setEnabled(arg1);
+
     //Requery
     tab0_Query();
 }
 
 void MainWindow::tab0_GodSon_CityCheckBox_stateChanged(int arg1)
 {
-    //Lock City filter field if not needed
-    if (arg1)
+    ui->tab0_GodSon_City->setEnabled(arg1);
+    ui->tab0_GodSon_NeighborhoodCheckBox->setEnabled(arg1);
+    if (!arg1)
     {
-        ui->tab0_GodSon_City->setEnabled(0);
-        //Also disable Neighborhood checkbox and uncheck it (chain reaction to neighborhood filter field
         ui->tab0_GodSon_NeighborhoodCheckBox->setChecked(0);
-        ui->tab0_GodSon_NeighborhoodCheckBox->setEnabled(0);
     }
-    else
-    {
-        ui->tab0_GodSon_City->setEnabled(1);
-        //Just enable the neighborhood checkbox to use
-        ui->tab0_GodSon_NeighborhoodCheckBox->setEnabled(1);
-    }
+
     //Requery
     tab0_Query();
 }
@@ -627,16 +661,8 @@ void MainWindow::tab0_GodSon_City_currentIndexChanged(int index)
 
 void MainWindow::tab0_GodSon_NeighborhoodCheckBox_stateChanged(int arg1)
 {
-    //Disable/Enable the Neighborhood filter field as desired, according to the Neighborhood-avail checkbox
-    if (arg1 == 0)
-    {
-        ui->tab0_GodSon_Neighborhood->setEnabled(0);
-    }
-    else
-    {
-        ui->tab0_GodSon_Neighborhood->setEnabled(1);
-    }
-    //Requery
+    ui->tab0_GodSon_Neighborhood->setEnabled(arg1);
+
     tab0_Query();
 }
 
@@ -916,7 +942,7 @@ void MainWindow::tab1_loadData()
     ui->tab1_Health_General->setCurrentIndex(query.value("HealthStatus").toInt());
     ui->tab1_Health_Comment->setPlainText(query.value("HealthComment").toString());
     ui->tab1_School_Assists->setChecked(query.value("SchoolAssists").toBool());
-    ui->tab1_School_Year->setCurrentIndex(query.value("SchoolYear").toInt() - 1);
+    ui->tab1_School_Year->setCurrentIndex(query.value("SchoolYear").toInt());
     ui->tab1_School_Distance->setCurrentIndex(query.value("SchoolDistance").toInt());
     ui->tab1_School_Comment->setPlainText(query.value("SchoolComment").toString());
 
@@ -1030,7 +1056,7 @@ void MainWindow::tab1_saveData()
     query.bindValue(":gender", ui->tab1_BasicInfo_Gender->currentText());
     query.bindValue(":schoolassists", ui->tab1_School_Assists->isChecked());
     query.bindValue(":schooldistance", ui->tab1_School_Distance->currentIndex());
-    query.bindValue(":schoolyear", ui->tab1_School_Year->currentIndex() + 1);
+    query.bindValue(":schoolyear", ui->tab1_School_Year->currentIndex());
     query.bindValue(":schoolcomment", ui->tab1_School_Comment->toPlainText());
     query.bindValue(":healthhiv", ui->tab1_Health_HIV->isChecked());
     query.bindValue(":healthstatus", ui->tab1_Health_General->currentIndex());
@@ -1230,6 +1256,13 @@ void MainWindow::tab2_Query_Slot()
     tab2_Query();
 }
 
+void MainWindow::tab2_Erase()
+{
+    ui->tab2_ID->clear();
+    ui->tab2_Name->clear();
+    ui->tab2_Surname->clear();
+}
+
 void MainWindow::tab2_ID_textChanged(const QString &arg1)
 {
     QPalette *palette = new QPalette();
@@ -1276,7 +1309,7 @@ void MainWindow::tab2_Next_clicked()
     ui->tabWidget->setCurrentIndex(3);
 }
 
-void MainWindow::tab3_Table_doubleClicked(const QModelIndex &index)
+void MainWindow::tab2_Table_doubleClicked(const QModelIndex &index)
 {
     tab2_GodParent = ui->tab2_Table->model()->data(ui->tab2_Table->model()->index(index.row(), 0)).toString();
 
@@ -1304,16 +1337,13 @@ void MainWindow::tab3_Query()
     QList <int> place = getPlace(CityAvail, City, NeighAvail, Neighborhood);
 
     QString placeholder = "%";
-    query.prepare("SELECT Godsons.ID_Code AS 'Id', Godsons.FirstName AS 'Nombre', Godsons.LastName AS 'Apellido', City.Name AS 'Ciudad' , Place.Name AS 'Barrio', (GodParents.FirstName || ' ' ||GodParents.LastName) AS 'Padrino'FROM Godsons INNER JOIN Place ON Godsons.ID_Place = Place.ID_Place INNER JOIN City ON Place.ID_City = City.ID_City INNER JOIN GodParents ON Godsons.ID_GodParent = GodParents.ID_GodParent WHERE Godsons.ID_Code LIKE :id AND Godsons.FirstName LIKE :name AND Godsons.LastName LIKE :surname AND Godsons.BirthDate LIKE :bd AND Godsons.ID_Place BETWEEN :pfirst AND :plast AND GodParents.ID_GodParent LIKE :gp_id AND GodParents.FirstName LIKE :gp_name AND GodParents.LastName LIKE :gp_surname");
+    query.prepare("SELECT Godsons.ID_Code AS 'Id', Godsons.FirstName AS 'Nombre', Godsons.LastName AS 'Apellido', City.Name AS 'Ciudad' , Place.Name AS 'Barrio' FROM Godsons INNER JOIN Place ON Godsons.ID_Place = Place.ID_Place INNER JOIN City ON Place.ID_City = City.ID_City WHERE Godsons.ID_Code LIKE :id AND Godsons.FirstName LIKE :name AND Godsons.LastName LIKE :surname AND Godsons.BirthDate LIKE :bd AND Godsons.ID_Place BETWEEN :pfirst AND :plast AND Godsons.ID_GodParent = 0");
     query.bindValue(":id", (ID.isEmpty())?placeholder:ID.append(placeholder));
     query.bindValue(":name", (Name.isEmpty())?placeholder:Name.append(placeholder));
     query.bindValue(":surname", (Surname.isEmpty())?placeholder:Surname.append(placeholder));
     query.bindValue(":pfirst", place[0]);
     query.bindValue(":plast", place[1]);
     query.bindValue(":bd", (DateAvail)?Date:placeholder);
-    query.bindValue(":gp_id", (GP_ID.isEmpty())?placeholder:GP_ID.append(placeholder));
-    query.bindValue(":gp_name", (GP_Name.isEmpty())?placeholder:GP_Name.append(placeholder));
-    query.bindValue(":gp_surname", (GP_Surname.isEmpty())?placeholder:GP_Surname.append(placeholder));
 
     query.exec();
     tab3_model->setQuery(query);
@@ -1323,6 +1353,66 @@ void MainWindow::tab3_Query()
 void MainWindow::tab3_Query_Slot()
 {
     tab3_Query();
+}
+
+void MainWindow::tab3_GodSon_DateCheckBox_stateChanged(bool arg1)
+{
+    ui->tab3_GodSon_Date->setEnabled(arg1);
+
+    tab3_Query();
+}
+
+void MainWindow::tab3_GodSon_CityCheckBox_stateChanged(bool arg1)
+{
+    ui->tab3_GodSon_City->setEnabled(arg1);
+    ui->tab3_GodSon_NeighborhoodCheckBox->setEnabled(arg1);
+    if (!arg1)
+    {
+        ui->tab3_GodSon_NeighborhoodCheckBox->setChecked(0);
+    }
+
+    tab3_Query();
+}
+
+void MainWindow::tab3_GodSon_City_currentIndexChanged(int index)
+{
+    index += 1;
+
+    QSqlQuery setData;
+    setData.prepare("SELECT Name FROM Place WHERE ID_City = :id");
+    setData.bindValue(":id", index);
+    setData.exec();
+
+    QStringList temp = tab0_neighborhoods;
+    tab3_neighborhoods.clear();
+    while(setData.next())
+    {
+        tab3_neighborhoods.append(setData.value("Name").toString());
+    }
+
+    if (temp != tab3_neighborhoods)
+    {
+        ui->tab3_GodSon_Neighborhood->clear();
+        ui->tab3_GodSon_Neighborhood->addItems(tab0_neighborhoods);
+    }
+
+    tab3_Query();
+}
+
+void MainWindow::tab3_GodSon_NeighborhoodCheckBox_stateChanged(bool arg1)
+{
+    ui->tab3_GodSon_Neighborhood->setEnabled(arg1);
+
+    tab3_Query();
+}
+
+void MainWindow::tab3_Erase()
+{
+    ui->tab3_GodSon_CityCheckBox->setChecked(false);
+    ui->tab3_GodSon_ID->clear();
+    ui->tab3_GodSon_Name->clear();
+    ui->tab3_GodSon_Surname->clear();
+    ui->tab3_GodSon_DateCheckBox->setChecked(false);
 }
 
 void MainWindow::tab3_GodSon_ID_textChanged(const QString &arg1)
@@ -1365,9 +1455,9 @@ void MainWindow::tab3_Back_clicked()
 void MainWindow::tab3_Next_clicked()
 {
     int index = ui->tab3_Table->selectionModel()->currentIndex().row();
-    tab3_GodParent = ui->tab3_Table->model()->data(ui->tab2_Table->model()->index(index, 0)).toString();
+    tab3_GodSon = ui->tab3_Table->model()->data(ui->tab2_Table->model()->index(index, 0)).toString();
 
-    if (tab3_GodParent.isEmpty())
+    if (tab3_GodSon.isEmpty())
     {
         return;
     }
@@ -1378,10 +1468,37 @@ void MainWindow::tab3_Next_clicked()
 
 void MainWindow::tab3_Table_doubleClicked(const QModelIndex &index)
 {
-    tab3_GodParent = ui->tab2_Table->model()->data(ui->tab3_Table->model()->index(index.row(), 0)).toString();
+    tab3_GodSon = ui->tab3_Table->model()->data(ui->tab3_Table->model()->index(index.row(), 0)).toString();
 
     tab4_loadData();
     ui->tabWidget->setCurrentIndex(4);
+}
+
+void MainWindow::tab3_Open()
+{
+    int index = ui->tab3_Table->selectionModel()->currentIndex().row();
+    tab1_searchIndex = ui->tab3_Table->model()->data(ui->tab3_Table->model()->index(index, 0)).toString();
+
+    if (tab1_searchIndex.isEmpty())
+    {
+        return;
+    }
+
+    tab1_loadData();
+    disconnect(ui->tab1_goBack, 0, 0, 0);
+    connect(ui->tab1_goBack, SIGNAL(clicked()), this, SLOT(tab3$1_Open_goBack_clicked()));
+    ui->tab1_edit->setVisible(false);
+    ui->tab1_ProgramData_Remove->setVisible(false);
+    ui->tab1_ProgramData_GodParent->setVisible(false);
+    ui->tabWidget->setCurrentIndex(1);
+}
+
+void MainWindow::tab3$1_Open_goBack_clicked()
+{
+    ui->tabWidget->setCurrentIndex(3);
+    ui->tab1_edit->setVisible(true);
+    ui->tab1_ProgramData_Remove->setVisible(true);
+    ui->tab1_ProgramData_GodParent->setVisible(true);
 }
 
 //--------------------------------------------------------------------------
@@ -1401,7 +1518,7 @@ void MainWindow::tab4_loadData()
     query.bindValue(":id", tab2_GodParent);
     query.exec();
     query.next();
-    ui->tab4_GodSon_Name->setText(query.value("Name").toString());
+    ui->tab4_GodParent_Name->setText(query.value("Name").toString());
 
     //IMPLEMENT IMAGES
 
