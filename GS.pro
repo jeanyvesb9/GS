@@ -18,7 +18,8 @@ SOURCES +=\
     dblogin.cpp \
     main.cpp \
     mainwindow.cpp \
-    sqlconsole.cpp
+    sqlconsole.cpp \
+    visitview.cpp
 
 HEADERS  += \
     dblogin.h \
@@ -27,13 +28,15 @@ HEADERS  += \
     dblogin.h \
     globaldata.h \
     mainwindow.h \
-    sqlconsole.h
+    sqlconsole.h \
+    visitview.h
 
 FORMS    += \
     dblogin.ui \
     sqlconsole.ui \
     dblogin.ui \
     mainwindow.ui \
-    sqlconsole.ui
+    sqlconsole.ui \
+    visitview.ui
 
 RESOURCES +=
