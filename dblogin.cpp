@@ -7,7 +7,7 @@ DBLogin::DBLogin(QWidget *parent) :
 {
     //Login window init
     ui->setupUi(this);
-    this->setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/DatabaseLogin_Icon.png")));
+    this->setWindowIcon(QIcon(iconPath->absolutePath().append("/DatabaseLogin_Icon.png")));
     this->setWindowTitle("Iniciar Base de Datos");
     this->setFixedSize(440,100);
 }
@@ -24,13 +24,13 @@ void DBLogin::on_pushButton_3_clicked()
                 this, "Abrir Base de Datos", QString(),
                 "Archivo  DB de SQLite (*.db);;Todos los archivos (*)");
     //Sets database directory
-    settings.setValue("main/databaseDirectory", filename);
+    settings->setValue("main/databaseDirectory", filename);
     emit SQLConnect();
 
 }
 void DBLogin::connected(bool dbconnected)
 {
-    ui->DBDirectory->setText(settings.value("main/databaseDirectory", "No seleccionado").toString());
+    ui->DBDirectory->setText(settings->value("main/databaseDirectory", "No seleccionado").toString());
     if (dbconnected)
     {
         connectionStat = true;
@@ -55,7 +55,7 @@ void DBLogin::on_pushButton_2_clicked()
                     QMessageBox::Yes | QMessageBox::No);
         quit.setButtonText(QMessageBox::Yes, "Reintentar");
         quit.setButtonText(QMessageBox::No, "Salir");
-        quit.setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
+        quit.setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
 
         if (quit.exec() == QMessageBox::No)
         {

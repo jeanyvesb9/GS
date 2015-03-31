@@ -14,7 +14,7 @@ SQLConsole::SQLConsole(QWidget *parent) :
     connect(ui->passwordCancel, SIGNAL(clicked()), this, SLOT(close()));
 
     this->setFixedSize(375, 90);
-    this->setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/Console_Icon.png")));
+    this->setWindowIcon(QIcon(iconPath->absolutePath().append("/Console_Icon.png")));
     ui->error->setReadOnly(true);
 
     query = new QSqlQuery;
@@ -46,7 +46,7 @@ void SQLConsole::ok_clicked()
         message->setText("Wrong Password");
         message->setStandardButtons(QMessageBox::Ok);
         message->setWindowTitle("Error");
-        message->setWindowIcon(QIcon(exePath.absolutePath().append("/resources/icons/Warning_Icon.png")));
+        message->setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
         message->exec();
         delete message;
         this->close();

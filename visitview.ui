@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>523</width>
-    <height>328</height>
+    <width>459</width>
+    <height>308</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
         <widget class="QLabel" name="label">
          <property name="maximumSize">
           <size>
-           <width>60</width>
+           <width>80</width>
            <height>16777215</height>
           </size>
          </property>
@@ -32,7 +32,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit">
+        <widget class="QLineEdit" name="Godson_ID">
          <property name="maximumSize">
           <size>
            <width>50</width>
@@ -246,7 +246,7 @@
   <tabstop>Comment</tabstop>
   <tabstop>Edit</tabstop>
   <tabstop>Ok</tabstop>
-  <tabstop>lineEdit</tabstop>
+  <tabstop>Godson_ID</tabstop>
  </tabstops>
  <resources/>
  <connections/>
