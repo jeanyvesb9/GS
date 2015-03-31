@@ -17,28 +17,21 @@ TEMPLATE = app
 SOURCES +=\
     dblogin.cpp \
     sqlconsole.cpp \
-    dblogin.cpp \
     main.cpp \
     mainwindow.cpp \
-    sqlconsole.cpp \
     visitview.cpp
 
 HEADERS  += \
     dblogin.h \
     globaldata.h \
     sqlconsole.h \
-    dblogin.h \
-    globaldata.h \
     mainwindow.h \
-    sqlconsole.h \
     visitview.h
 
 FORMS    += \
     dblogin.ui \
     sqlconsole.ui \
-    dblogin.ui \
     mainwindow.ui \
-    sqlconsole.ui \
     visitview.ui
 
 RESOURCES +=

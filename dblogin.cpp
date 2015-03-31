@@ -10,6 +10,9 @@ DBLogin::DBLogin(QWidget *parent) :
     this->setWindowIcon(QIcon(iconPath->absolutePath().append("/DatabaseLogin_Icon.png")));
     this->setWindowTitle("Iniciar Base de Datos");
     this->setFixedSize(440,100);
+
+    connect(ui->pushButton_2, SIGNAL(clicked()), this, SLOT(OK_clicked()));
+    connect(ui->pushButton_3, SIGNAL(clicked()), this, SLOT(changeDB_clicked()));
 }
 
 DBLogin::~DBLogin()
@@ -17,7 +20,7 @@ DBLogin::~DBLogin()
     delete ui;
 }
 
-void DBLogin::on_pushButton_3_clicked()
+void DBLogin::changeDB_clicked()
 {
     //Change DB button
     QString filename = QFileDialog::getOpenFileName(
@@ -43,7 +46,7 @@ void DBLogin::connected(bool dbconnected)
     }
 }
 
-void DBLogin::on_pushButton_2_clicked()
+void DBLogin::OK_clicked()
 {
     //OK button
     if (connectionStat == false)
@@ -67,6 +70,7 @@ void DBLogin::on_pushButton_2_clicked()
         close();
     }
 }
+
 void DBLogin::closeEvent(QCloseEvent *event)
 {
     if (!connectionStat)

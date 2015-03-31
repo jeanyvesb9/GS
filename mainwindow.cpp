@@ -91,6 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
     isDBOpen = openDB();
     //Call for Login Window
     login->setModal(true);
+    //login->show();
     login->exec();
     delete login;
 

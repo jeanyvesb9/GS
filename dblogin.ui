@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>440</width>
-    <height>100</height>
+    <height>108</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,13 +19,16 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
      <width>421</width>
-     <height>81</height>
+     <height>95</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -75,6 +78,9 @@
         <property name="text">
          <string>Cambiar BD</string>
         </property>
+        <property name="autoDefault">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -94,6 +100,9 @@
        <widget class="QPushButton" name="pushButton_2">
         <property name="text">
          <string>Ok</string>
+        </property>
+        <property name="autoDefault">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

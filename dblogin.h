@@ -21,13 +21,13 @@ class DBLogin : public QDialog
     Q_OBJECT
 
 public:
-    explicit DBLogin(QWidget *parent = 0);
+    DBLogin(QWidget *parent = 0);
     ~DBLogin();
-    inline bool getConectionStat() { return connectionStat; }
+    bool getConectionStat() { return connectionStat; }
 
 private slots:
-    void on_pushButton_3_clicked();
-    void on_pushButton_2_clicked();
+    void changeDB_clicked();
+    void OK_clicked();
 public slots:
     void connected(bool);
 signals:
