@@ -1,9 +1,0 @@
-Error list:
-
-DATABASE ERRORS:
-0x1	Database connection fail
-0x2	Database read fail
-0x3	Database write fail
-
-RESOURCES ERRORS:
-0x4	Stylesheet load error

@@ -21,22 +21,24 @@ class DBLogin : public QDialog
     Q_OBJECT
 
 public:
-    DBLogin(QWidget *parent = 0);
+    explicit DBLogin(bool &conStatus, QWidget *parent = 0);
     ~DBLogin();
-    bool getConectionStat() { return connectionStat; }
+    inline bool getConectionStat() { return connectionStat; }
 
 private slots:
     void changeDB_clicked();
-    void OK_clicked();
+    void Ok_clicked();
+    void createDB_clicked();
 public slots:
     void connected(bool);
 signals:
     void SQLConnect();
 protected:
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent * e);
 private:
     Ui::DBLogin *ui;
     bool connectionStat;
+    bool *conStat;
 };
 
 #endif // DBLOGIN_H

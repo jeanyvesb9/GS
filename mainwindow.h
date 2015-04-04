@@ -12,6 +12,8 @@
 #include <QSettings>
 #include <QLabel>
 #include <QProgressBar>
+#include <QProcess>
+#include <QTimer>
 #include "dblogin.h"
 #include "globaldata.h"
 #include "sqlconsole.h"
@@ -26,10 +28,10 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    DBLogin *login;
+    bool conStat;
     ~MainWindow();
 private slots:
-    void on_actionCambiar_Base_de_Datos_triggered();
-
     void on_actionBuscar_Ahijado_triggered();
     void on_actionApadrinar_triggered();
     void on_actionNuevo_Padrino_triggered();
@@ -38,6 +40,7 @@ private slots:
 
     void on_actionImprimir_triggered();
 
+    void on_actionCambiar_Base_de_Datos_triggered();
     void actionSQLConsole();
 
     //TabWidget
@@ -125,8 +128,6 @@ private:
     QProgressBar *statProgress;
     bool openDB();
     bool isDBOpen;
-
-    DBLogin *login;
 
     //General
     QStringList cities;

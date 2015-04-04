@@ -22,7 +22,7 @@ IMPLEMENT email action in toolbar after print
 IMPLEMENT images
 IMPLEMENT relationship images
 
-
+IMPLEMENT create/change database option (load all settings/data from database)
 
 
 

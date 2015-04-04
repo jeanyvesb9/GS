@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     //Main Window init
     ui->setupUi(this);
-    this->setWindowIcon(QIcon(iconPath->absolutePath().append("/MainWindow_Icon.png")));
+    this->setWindowIcon(QIcon(iconsPath->absolutePath().append("/MainWindow_Icon.png")));
     this->setWindowTitle("Gestión Solidaria - Proyecto Sagrada Familia");
 
     //StatusBar
@@ -56,12 +56,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainToolBar->addWidget(empty6);
 
 
-    ui->actionBuscar_Ahijado->setIcon(QIcon(iconPath->absolutePath().append("/Search_Icon.png")));
-    ui->actionApadrinar->setIcon(QIcon(iconPath->absolutePath().append("/AddRelationship_Icon.png")));
-    ui->actionAdministrar_Ahijados->setIcon(QIcon(iconPath->absolutePath().append("/AdminAhijados_Icon.png")));
-    ui->actionAdministrar_Padrinos->setIcon(QIcon(iconPath->absolutePath().append("/AdminPadrinos_Icon.png")));
-    ui->actionNuevo_Padrino->setIcon(QIcon(iconPath->absolutePath().append("/AddGodParent_Icon.png")));
-    ui->actionImprimir->setIcon(QIcon(iconPath->absolutePath().append("/Print_Icon.png")));
+    ui->actionBuscar_Ahijado->setIcon(QIcon(iconsPath->absolutePath().append("/Search_Icon.png")));
+    ui->actionApadrinar->setIcon(QIcon(iconsPath->absolutePath().append("/AddRelationship_Icon.png")));
+    ui->actionAdministrar_Ahijados->setIcon(QIcon(iconsPath->absolutePath().append("/AdminAhijados_Icon.png")));
+    ui->actionAdministrar_Padrinos->setIcon(QIcon(iconsPath->absolutePath().append("/AdminPadrinos_Icon.png")));
+    ui->actionNuevo_Padrino->setIcon(QIcon(iconsPath->absolutePath().append("/AddGodParent_Icon.png")));
+    ui->actionImprimir->setIcon(QIcon(iconsPath->absolutePath().append("/Print_Icon.png")));
 
     QActionGroup *toolbarActions = new QActionGroup(this);
     ui->actionBuscar_Ahijado->setActionGroup(toolbarActions);
@@ -83,16 +83,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Define sqlite DB
     sqlite = QSqlDatabase::addDatabase("QSQLITE");
+
     //Declare and Connect Login
-    login = new DBLogin(this);
-    connect (login, SIGNAL(SQLConnect()), this, SLOT(tryConnect()));
-    connect (this, SIGNAL(isSQLConnected(bool)), login, SLOT(connected(bool)));
+    login = new DBLogin(conStat, this);
+    connect(login, SIGNAL(SQLConnect()), this, SLOT(tryConnect()));
+    connect(this, SIGNAL(isSQLConnected(bool)), login, SLOT(connected(bool)));
     //Check for valid DB
     isDBOpen = openDB();
     //Call for Login Window
     login->setModal(true);
-    //login->show();
     login->exec();
+    if (!conStat)
+    {
+        QTimer::singleShot(0, this, SLOT(close()));
+        return;
+    }
     delete login;
 
     //TabWidget
@@ -120,6 +125,7 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         tab0_neighborhoods.append(setData.value("name").toString());
     }
+
     ui->tabWidget->setCurrentIndex(0);
 
         //--------------------------------------------------------------------------
@@ -145,8 +151,8 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->tab0_GodSon_Neighborhood->addItems(tab0_neighborhoods);
         ui->tab0_GodParent_ID->setMaxLength(4);
 
-        ui->tab0_Erase->setIcon(QIcon(iconPath->absolutePath().append("/Erase_Icon.png")));
-        ui->tab0_SearchOpen->setIcon(QIcon(iconPath->absolutePath().append("/Open_Icon.png")));
+        ui->tab0_Erase->setIcon(QIcon(iconsPath->absolutePath().append("/Erase_Icon.png")));
+        ui->tab0_SearchOpen->setIcon(QIcon(iconsPath->absolutePath().append("/Open_Icon.png")));
 
         ui->tab0_TableView->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->tab0_TableView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -193,12 +199,13 @@ MainWindow::MainWindow(QWidget *parent) :
         {
             ui->tab1_School_Year->addItem(QString::number(i).append("° Año"));
         }
-        ui->tab1_BasicInfo_City->addItems(cities);
+
         ui->tab1_BasicInfo_Gender->addItem("F");
         ui->tab1_BasicInfo_Gender->addItem("M");
-        ui->tab1_edit->setIcon(QIcon(iconPath->absolutePath().append("/Edit_Icon.png")));
-        ui->tab1_saveChanges->setIcon(QIcon(iconPath->absolutePath().append("/Save_Icon.png")));
-        ui->tab1_goBack->setIcon(QIcon(iconPath->absolutePath().append("/Back_Icon.png")));
+        ui->tab1_BasicInfo_City->addItems(cities);
+        ui->tab1_edit->setIcon(QIcon(iconsPath->absolutePath().append("/Edit_Icon.png")));
+        ui->tab1_saveChanges->setIcon(QIcon(iconsPath->absolutePath().append("/Save_Icon.png")));
+        ui->tab1_goBack->setIcon(QIcon(iconsPath->absolutePath().append("/Back_Icon.png")));
         ui->tab1_Visits_Table->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->tab1_Visits_Table->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->tab1_Visits_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -216,7 +223,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         ui->tab2_ID->setMaxLength(4);
 
-        ui->tab2_Next->setIcon(QIcon(iconPath->absolutePath().append("/Next_Icon.png")));
+        ui->tab2_Next->setIcon(QIcon(iconsPath->absolutePath().append("/Next_Icon.png")));
 
         ui->tab2_Table->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->tab2_Table->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -239,12 +246,11 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(ui->tab3_Table, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tab3_Table_doubleClicked(QModelIndex)));
         connect(ui->tab3_Open, SIGNAL(clicked()), this, SLOT(tab3_Open()));
 
-        ui->tab3_GodSon_City->addItems(cities);
         ui->tab3_GodSon_ID->setMaxLength(4);
+        ui->tab3_GodSon_City->addItems(cities);
         ui->tab3_GodSon_Neighborhood->addItems(tab0_neighborhoods);
-
-        ui->tab3_Back->setIcon(QIcon(iconPath->absolutePath().append("/Back_Icon.png")));
-        ui->tab3_Next->setIcon(QIcon(iconPath->absolutePath().append("/Next_Icon.png")));
+        ui->tab3_Back->setIcon(QIcon(iconsPath->absolutePath().append("/Back_Icon.png")));
+        ui->tab3_Next->setIcon(QIcon(iconsPath->absolutePath().append("/Next_Icon.png")));
 
         ui->tab3_Table->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->tab3_Table->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -256,8 +262,8 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(ui->tab4_Back, SIGNAL(clicked()), this, SLOT(tab4_Back_clicked()));
         connect(ui->tab4_End, SIGNAL(clicked()), this, SLOT(tab4_End_clicked()));
 
-        ui->tab4_Back->setIcon(QIcon(iconPath->absolutePath().append("/Back_Icon.png")));
-        ui->tab4_End->setIcon(QIcon(iconPath->absolutePath().append("/Ok_Icon.png")));
+        ui->tab4_Back->setIcon(QIcon(iconsPath->absolutePath().append("/Back_Icon.png")));
+        ui->tab4_End->setIcon(QIcon(iconsPath->absolutePath().append("/Ok_Icon.png")));
 
         //--------------------------------------------------------------------------
         //Tab5
@@ -276,8 +282,8 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(ui->tab6_SearchOpen, SIGNAL(clicked()), this, SLOT(tab6_SearchOpen_clicked()));
         connect(ui->tab6_tableView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tab6_TableView_doubleClicked(QModelIndex)));
 
-        ui->tab6_Erase->setIcon(QIcon(iconPath->absolutePath().append("/Erase_Icon.png")));
-        ui->tab6_SearchOpen->setIcon(QIcon(iconPath->absolutePath().append("/Open_Icon.png")));
+        ui->tab6_Erase->setIcon(QIcon(iconsPath->absolutePath().append("/Erase_Icon.png")));
+        ui->tab6_SearchOpen->setIcon(QIcon(iconsPath->absolutePath().append("/Open_Icon.png")));
 
         ui->tab6_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->tab6_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -285,7 +291,6 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->tab6_tableView->verticalHeader()->setVisible(false);
 
         tab6_Query();
-
 
         //--------------------------------------------------------------------------
         //Tab7
@@ -297,10 +302,10 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(ui->tab7_Open, SIGNAL(clicked()), this, SLOT(tab7_open_clicked()));
         connect(ui->tab7_Disconnect, SIGNAL(clicked()), this, SLOT(tab7_disconnect_clicked()));
 
-        ui->tab7_goBack->setIcon(QIcon(iconPath->absolutePath().append("/Back_Icon.png")));
-        ui->tab7_saveChanges->setIcon(QIcon(iconPath->absolutePath().append("/Save_Icon.png")));
-        ui->tab7_Delete->setIcon(QIcon(iconPath->absolutePath().append("/Delete_Icon.png")));
-        ui->tab7_Open->setIcon(QIcon(iconPath->absolutePath().append("/Open_Icon.png")));
+        ui->tab7_goBack->setIcon(QIcon(iconsPath->absolutePath().append("/Back_Icon.png")));
+        ui->tab7_saveChanges->setIcon(QIcon(iconsPath->absolutePath().append("/Save_Icon.png")));
+        ui->tab7_Delete->setIcon(QIcon(iconsPath->absolutePath().append("/Delete_Icon.png")));
+        ui->tab7_Open->setIcon(QIcon(iconsPath->absolutePath().append("/Open_Icon.png")));
 
         ui->tab7_Godsons_Table->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->tab7_Godsons_Table->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -372,18 +377,8 @@ void MainWindow::tryConnect()
 
 void MainWindow::on_actionCambiar_Base_de_Datos_triggered()
 {
-    //Archivo/Cambiar Base de Datos
-
-    //Declare and Connect Login
-    login = new DBLogin(this);
-    connect (login, SIGNAL(SQLConnect()), this, SLOT(tryConnect()));
-    connect (this, SIGNAL(isSQLConnected(bool)), login, SLOT(connected(bool)));
-    //Check for valid DB
-    isDBOpen = openDB();
-    //Call for Login Window
-    login->setModal(true);
-    login->exec();
-    delete login;
+    qApp->quit();
+    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
 }
 
 //Menu actions setup:
@@ -412,7 +407,6 @@ void MainWindow::on_actionAdministrar_Ahijados_triggered()
 {
     ui->TitleLabel->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:18pt; font-weight:600; color:#000000;\">Administrar Ahijados</span></p></body></html>");
     ui->tabWidget->setCurrentIndex(8);
-
 }
 
 void MainWindow::on_actionImprimir_triggered()
@@ -809,12 +803,12 @@ void MainWindow::tab1_setEditMode(bool status)
         ui->tab1_Visits_LastVisit_Comment->setReadOnly(true);
 
         ui->tab1_edit->setText("Cancelar");
-        ui->tab1_edit->setIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+        ui->tab1_edit->setIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
     }
     else
     {
         ui->tab1_edit->setText("Editar");
-        ui->tab1_edit->setIcon(QIcon(iconPath->absolutePath().append("/Edit_Icon.png")));
+        ui->tab1_edit->setIcon(QIcon(iconsPath->absolutePath().append("/Edit_Icon.png")));
     }
 
 }
@@ -834,7 +828,7 @@ void MainWindow::tab1_edit_clicked()
                     QMessageBox::Yes | QMessageBox::No);
         cancel.setButtonText(QMessageBox::Yes, "Si");
         cancel.setButtonText(QMessageBox::No, "No");
-        cancel.setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+        cancel.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
 
         switch(cancel.exec())
         {
@@ -879,7 +873,7 @@ void MainWindow::tab1_save_clicked()
                 QMessageBox::Yes | QMessageBox::No);
     cancel.setButtonText(QMessageBox::Yes, "Si");
     cancel.setButtonText(QMessageBox::No, "No");
-    cancel.setWindowIcon(QIcon(iconPath->absolutePath().append("/Save_Icon.png")));
+    cancel.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Save_Icon.png")));
 
     switch(cancel.exec())
     {
@@ -1195,7 +1189,7 @@ void MainWindow::tab1_ProgramData_Accept()
                 QMessageBox::Yes | QMessageBox::No);
     cancel.setButtonText(QMessageBox::Yes, "Si");
     cancel.setButtonText(QMessageBox::No, "No");
-    cancel.setWindowIcon(QIcon(iconPath->absolutePath().append("/Save_Icon.png")));
+    cancel.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Save_Icon.png")));
 
     switch(cancel.exec())
     {
@@ -1558,7 +1552,7 @@ void MainWindow::tab4_End_clicked()
                 QMessageBox::Yes | QMessageBox::No);
     cancel.setButtonText(QMessageBox::Yes, "Si");
     cancel.setButtonText(QMessageBox::No, "No");
-    cancel.setWindowIcon(QIcon(iconPath->absolutePath().append("/Save_Icon.png")));
+    cancel.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Save_Icon.png")));
 
     switch(cancel.exec())
     {
@@ -1628,7 +1622,7 @@ void MainWindow::tab5_Create_clicked()
             msgBox.setWindowTitle("Operación completada");
             msgBox.setInformativeText("Se ha agregado al nuevo padrino a la base de datos");
             msgBox.setStandardButtons(QMessageBox::Ok);
-            msgBox.setWindowIcon(QIcon(iconPath->absolutePath().append("/Ok_Icon.png")));
+            msgBox.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Ok_Icon.png")));
             msgBox.exec();
 
             tab5_erase();
@@ -1639,7 +1633,7 @@ void MainWindow::tab5_Create_clicked()
             msgBox.setWindowTitle("Operación fallida");
             msgBox.setInformativeText("Ha habido un problema la ejecutar el ingreso de la información a la base de datos");
             msgBox.setStandardButtons(QMessageBox::Ok);
-            msgBox.setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+            msgBox.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
             msgBox.exec();
         }
     }
@@ -1649,7 +1643,7 @@ void MainWindow::tab5_Create_clicked()
         msgBox.setWindowTitle("Error");
         msgBox.setInformativeText("Uno o mas de los campos requeridos se encuentran en blanco");
         msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+        msgBox.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
         msgBox.exec();
     }
 }
@@ -1838,14 +1832,14 @@ void MainWindow::tab7_setEditMode(bool status)
         ui->tab7_Date->setButtonSymbols(QAbstractSpinBox::UpDownArrows);
 
         ui->tab7_edit->setText("Cancelar");
-        ui->tab7_edit->setIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+        ui->tab7_edit->setIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
     }
     else
     {
         ui->tab7_Date->setButtonSymbols(QAbstractSpinBox::NoButtons);
 
         ui->tab7_edit->setText("Editar");
-        ui->tab7_edit->setIcon(QIcon(iconPath->absolutePath().append("/Edit_Icon.png")));
+        ui->tab7_edit->setIcon(QIcon(iconsPath->absolutePath().append("/Edit_Icon.png")));
 
         if(ui->tab7_Godsons_Table->verticalHeader()->count())
         {
@@ -1875,7 +1869,7 @@ void MainWindow::tab7_edit_clicked()
                     QMessageBox::Yes | QMessageBox::No);
         cancel.setButtonText(QMessageBox::Yes, "Si");
         cancel.setButtonText(QMessageBox::No, "No");
-        cancel.setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+        cancel.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
 
         switch(cancel.exec())
         {
@@ -1897,7 +1891,7 @@ void MainWindow::tab7_save_clicked()
                 QMessageBox::Yes | QMessageBox::No);
     cancel.setButtonText(QMessageBox::Yes, "Si");
     cancel.setButtonText(QMessageBox::No, "No");
-    cancel.setWindowIcon(QIcon(iconPath->absolutePath().append("/Save_Icon.png")));
+    cancel.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Save_Icon.png")));
 
     switch(cancel.exec())
     {
@@ -1919,7 +1913,7 @@ void MainWindow::tab7_delete_clicked()
                 QMessageBox::Yes | QMessageBox::No);
     cancel.setButtonText(QMessageBox::Yes, "Si");
     cancel.setButtonText(QMessageBox::No, "No");
-    cancel.setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+    cancel.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
 
     switch (cancel.exec())
     {
@@ -1933,7 +1927,7 @@ void MainWindow::tab7_delete_clicked()
                     QMessageBox::Yes | QMessageBox::No);
         confirm.setButtonText(QMessageBox::Yes, "Si");
         confirm.setButtonText(QMessageBox::No, "No");
-        confirm.setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+        confirm.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
 
         switch(confirm.exec())
         {
@@ -2017,7 +2011,7 @@ void MainWindow::tab7_disconnect_clicked()
                 QMessageBox::Yes | QMessageBox::No);
     confirm.setButtonText(QMessageBox::Yes, "Si");
     confirm.setButtonText(QMessageBox::No, "No");
-    confirm.setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+    confirm.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
 
     switch(confirm.exec())
     {
@@ -2030,7 +2024,7 @@ void MainWindow::tab7_disconnect_clicked()
         tab7_disconnect(disconnectIndex);
         QMessageBox *message = new QMessageBox;
         message->setText("Se ha completado la operación");
-
+        message->show();
         tab7_Prepare(false);
         break;
     }
@@ -2038,3 +2032,5 @@ void MainWindow::tab7_disconnect_clicked()
 
 //--------------------------------------------------------------------------
 //Tab8
+
+

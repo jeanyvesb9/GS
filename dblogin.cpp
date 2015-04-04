@@ -1,18 +1,21 @@
 #include "dblogin.h"
 #include "ui_dblogin.h"
 
-DBLogin::DBLogin(QWidget *parent) :
+DBLogin::DBLogin(bool &conStatus, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DBLogin)
 {
     //Login window init
     ui->setupUi(this);
-    this->setWindowIcon(QIcon(iconPath->absolutePath().append("/DatabaseLogin_Icon.png")));
+    this->setWindowIcon(QIcon(iconsPath->absolutePath().append("/DatabaseLogin_Icon.png")));
     this->setWindowTitle("Iniciar Base de Datos");
     this->setFixedSize(440,100);
 
-    connect(ui->pushButton_2, SIGNAL(clicked()), this, SLOT(OK_clicked()));
-    connect(ui->pushButton_3, SIGNAL(clicked()), this, SLOT(changeDB_clicked()));
+    conStat = &conStatus;
+
+    connect(ui->Ok, SIGNAL(clicked()), this, SLOT(Ok_clicked()));
+    connect(ui->changeDB, SIGNAL(clicked()), this, SLOT(changeDB_clicked()));
+    connect(ui->createDB, SIGNAL(clicked()), this, SLOT(createDB_clicked()));
 }
 
 DBLogin::~DBLogin()
@@ -46,7 +49,7 @@ void DBLogin::connected(bool dbconnected)
     }
 }
 
-void DBLogin::OK_clicked()
+void DBLogin::Ok_clicked()
 {
     //OK button
     if (connectionStat == false)
@@ -58,7 +61,7 @@ void DBLogin::OK_clicked()
                     QMessageBox::Yes | QMessageBox::No);
         quit.setButtonText(QMessageBox::Yes, "Reintentar");
         quit.setButtonText(QMessageBox::No, "Salir");
-        quit.setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+        quit.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
 
         if (quit.exec() == QMessageBox::No)
         {
@@ -71,12 +74,46 @@ void DBLogin::OK_clicked()
     }
 }
 
-void DBLogin::closeEvent(QCloseEvent *event)
+void DBLogin::createDB_clicked()
+{
+    QString filename = QFileDialog::getSaveFileName(this,
+                "Guardar Base de Datos", QString(),
+                "Archivo DB de SQLite (*.db)");
+
+    if(QFile::copy(exePath->absolutePath().append("/resources/dbmodel/model.db"), filename))
+    {
+        QMessageBox open(
+                    QMessageBox::Question,
+                    "Abrir",
+                    "Desea abrir la Base de Datos ahora?",
+                    QMessageBox::Yes | QMessageBox::No);
+        open.setButtonText(QMessageBox::Yes, "Si");
+        open.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Ok_Icon.png")));
+
+        if (open.exec() == QMessageBox::Yes)
+        {
+            settings->setValue("main/databaseDirectory", filename);
+            this->close();
+        }
+    }
+    else
+    {
+        QMessageBox error(
+                    QMessageBox::Warning,
+                    "Error",
+                    "Error al copiar el archivo",
+                    QMessageBox::Ok);
+        error.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
+    }
+}
+
+void DBLogin::closeEvent(QCloseEvent * e)
 {
     if (!connectionStat)
     {
-//FIX THIS: PROGRAM CRASHING AFTER CLOSING
-        this->parent()->deleteLater();
+        *conStat = false;
+        return;
     }
-    event->accept();
+
+    *conStat = true;
 }

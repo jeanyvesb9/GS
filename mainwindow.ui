@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>733</width>
-    <height>517</height>
+    <width>777</width>
+    <height>542</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -722,9 +722,9 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-1485</y>
-             <width>637</width>
-             <height>2369</height>
+             <y>0</y>
+             <width>679</width>
+             <height>2428</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -4013,8 +4013,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>637</width>
-             <height>573</height>
+             <width>679</width>
+             <height>635</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_26">
@@ -4542,14 +4542,15 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>733</width>
-     <height>21</height>
+     <width>777</width>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuArchivo">
     <property name="title">
      <string>Archivo</string>
     </property>
+    <addaction name="separator"/>
     <addaction name="actionCambiar_Base_de_Datos"/>
     <addaction name="separator"/>
     <addaction name="actionSalir"/>
@@ -4621,11 +4622,6 @@
     <bool>false</bool>
    </property>
   </widget>
-  <action name="actionCambiar_Base_de_Datos">
-   <property name="text">
-    <string>Cambiar Base de Datos</string>
-   </property>
-  </action>
   <action name="actionSalir">
    <property name="text">
     <string>Cerrar</string>
@@ -4724,6 +4720,11 @@
    </property>
    <property name="text">
     <string>Buscar Ahijado</string>
+   </property>
+  </action>
+  <action name="actionCambiar_Base_de_Datos">
+   <property name="text">
+    <string>Cambiar/Crear Base de Datos</string>
    </property>
   </action>
  </widget>

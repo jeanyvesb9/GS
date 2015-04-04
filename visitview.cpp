@@ -7,7 +7,7 @@ VisitView::VisitView(QWidget *parent, int visit) :
     visit{visit}
 {
     ui->setupUi(this);
-    this->setWindowIcon(QIcon(iconPath->absolutePath().append("/Open_Icon.png")));
+    this->setWindowIcon(QIcon(iconsPath->absolutePath().append("/Open_Icon.png")));
 
     loadVisit(visit);
     setEdit(false);
@@ -25,7 +25,7 @@ VisitView::VisitView(QWidget *parent, QString id) :
 
     setEdit(true);
     ui->Ok->setText("Crear");
-    ui->Ok->setIcon(QIcon(iconPath->absolutePath().append("/Ok_Icon.png")));
+    ui->Ok->setIcon(QIcon(iconsPath->absolutePath().append("/Ok_Icon.png")));
     ui->VisitNumber->setText(QString::number(getVisitNumber(QDate::currentDate())));
     this->setWindowTitle("Crear Visita");
 
@@ -125,7 +125,7 @@ void VisitView::createVisit_Clicked()
     return;
     }
     QMessageBox *message = new QMessageBox;
-    message->setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+    message->setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
     message->setText("La fecha ingresada corresponde a una visita existente, o supera la fecha del Sistema. Por favor corrobore la configuración de Windows.");
     message->show();
 }
@@ -139,7 +139,7 @@ void VisitView::saveEdit_Clicked()
         return;
     }
     QMessageBox *message = new QMessageBox;
-    message->setWindowIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+    message->setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
     message->setText("La fecha ingresada corresponde a una visita existente, o supera la fecha del Sistema. Por favor corrobore la configuración de Windows.");
     message->show();
 }
@@ -188,11 +188,11 @@ void VisitView::setEdit(bool status)
         disconnect(ui->Edit, 0, 0, 0);
         connect(ui->Edit, SIGNAL(clicked()), this, SLOT(cancelEdit_Clicked()));
         ui->Edit->setText("Cancelar");
-        ui->Edit->setIcon(QIcon(iconPath->absolutePath().append("/Warning_Icon.png")));
+        ui->Edit->setIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
         disconnect(ui->Ok, 0, 0, 0);
         connect(ui->Ok, SIGNAL(clicked()), this, SLOT(saveEdit_Clicked()));
         ui->Ok->setText("Guardar");
-        ui->Ok->setIcon(QIcon(iconPath->absolutePath().append("/Save_Icon.png")));
+        ui->Ok->setIcon(QIcon(iconsPath->absolutePath().append("/Save_Icon.png")));
         this->setWindowTitle("Editar Visita");
 
         connect(ui->Date, SIGNAL(dateChanged(QDate)), this, SLOT(dateChanged(QDate)));
@@ -203,11 +203,11 @@ void VisitView::setEdit(bool status)
         disconnect(ui->Edit, 0, 0, 0);
         connect(ui->Edit, SIGNAL(clicked()), this, SLOT(edit_Clicked()));
         ui->Edit->setText("Editar");
-        ui->Edit->setIcon(QIcon(iconPath->absolutePath().append("/Edit_Icon.png")));
+        ui->Edit->setIcon(QIcon(iconsPath->absolutePath().append("/Edit_Icon.png")));
         disconnect(ui->Ok, 0, 0, 0);
         connect(ui->Ok, SIGNAL(clicked()), this, SLOT(close()));
         ui->Ok->setText("Ok");
-        ui->Ok->setIcon(QIcon(iconPath->absolutePath().append("/Ok_Icon.png")));
+        ui->Ok->setIcon(QIcon(iconsPath->absolutePath().append("/Ok_Icon.png")));
         this->setWindowTitle("Ver Visita");
 
         disconnect(ui->Date, 0, 0, 0);

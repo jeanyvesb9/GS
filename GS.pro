@@ -4,10 +4,10 @@
 #
 #-------------------------------------------------
 
-CONFIG += c++14
-
 QT       += core gui
 QT       += sql
+
+CONFIG   += c++14
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -33,5 +33,3 @@ FORMS    += \
     sqlconsole.ui \
     mainwindow.ui \
     visitview.ui
-
-RESOURCES +=

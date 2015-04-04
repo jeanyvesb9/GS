@@ -4,14 +4,13 @@
 #include <QApplication>
 #include <QSettings>
 
-static const QDir *exePath = new QDir(QApplication::applicationDirPath());
+#ifdef QT_DEBUG
+    static const QDir *exePath = new QDir(QDir::currentPath().append("/../GS"));
+#else
+    static const QDir *exePath = new QDir::currentPath();
+#endif
 static const QDir *settingsPath = new QDir(exePath->absolutePath().append("/settings.ini"));
 static QSettings *settings = new QSettings(settingsPath->absolutePath(), QSettings::IniFormat);
-
-#ifdef QT_DEBUG
-    static const QDir *iconPath = new QDir(exePath->absolutePath().append("/../../../GS/resources/icons"));
-#else
-    static const QDir *iconPath = new QDir(exePath->absolutePath().append("resources/icons"));
-#endif
+static const QDir *iconsPath = new QDir(exePath->absolutePath().append("/resources/icons"));
 
 #endif // GLOBALDATA
