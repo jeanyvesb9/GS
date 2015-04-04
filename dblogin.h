@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QIcon>
 #include <QDebug>
+#include <QProcess>
 #include "globaldata.h"
 
 namespace Ui {
@@ -30,7 +31,7 @@ private slots:
     void Ok_clicked();
     void createDB_clicked();
 public slots:
-    void connected(bool);
+    void connected(int);
 signals:
     void SQLConnect();
 protected:

@@ -34,18 +34,24 @@ void DBLogin::changeDB_clicked()
     emit SQLConnect();
 
 }
-void DBLogin::connected(bool dbconnected)
+void DBLogin::connected(int dbconnected)
 {
     ui->DBDirectory->setText(settings->value("main/databaseDirectory", "No seleccionado").toString());
-    if (dbconnected)
+    if (dbconnected == 1)
     {
         connectionStat = true;
         ui->connectionStatus->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:10pt; font-weight:600; color:#005500;\">Conectado a Base de Datos</span></p></body></html>");
     }
-    else
+    else if (dbconnected == 0)
     {
         connectionStat = false;
         ui->connectionStatus->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:10pt; font-weight:600; color:#ff0000;\">Archivo Inválido</span></p></body></html>");
+    }
+    else
+    {
+        connectionStat = false;
+        ui->connectionStatus->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:10pt; font-weight:600; color:#ff0000;\">Archivo Inexistente</span></p></body></html>");
+
     }
 }
 
@@ -57,7 +63,7 @@ void DBLogin::Ok_clicked()
         QMessageBox quit(
                     QMessageBox::Warning,
                     "Error",
-                    "El archivo seleccionadoo no corresponde a una Base de Datos de SQLite válida",
+                    "El archivo seleccionado no corresponde a una Base de Datos de SQLite válida",
                     QMessageBox::Yes | QMessageBox::No);
         quit.setButtonText(QMessageBox::Yes, "Reintentar");
         quit.setButtonText(QMessageBox::No, "Salir");
@@ -80,6 +86,11 @@ void DBLogin::createDB_clicked()
                 "Guardar Base de Datos", QString(),
                 "Archivo DB de SQLite (*.db)");
 
+    if(!filename.endsWith(".db"))
+    {
+        filename.append(".db");
+    }
+
     if(QFile::copy(exePath->absolutePath().append("/resources/dbmodel/model.db"), filename))
     {
         QMessageBox open(
@@ -93,6 +104,7 @@ void DBLogin::createDB_clicked()
         if (open.exec() == QMessageBox::Yes)
         {
             settings->setValue("main/databaseDirectory", filename);
+            emit SQLConnect();
             this->close();
         }
     }
@@ -112,8 +124,9 @@ void DBLogin::closeEvent(QCloseEvent * e)
     if (!connectionStat)
     {
         *conStat = false;
+        e->accept();
         return;
     }
-
     *conStat = true;
+    e->accept();
 }

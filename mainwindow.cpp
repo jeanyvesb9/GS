@@ -87,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //Declare and Connect Login
     login = new DBLogin(conStat, this);
     connect(login, SIGNAL(SQLConnect()), this, SLOT(tryConnect()));
-    connect(this, SIGNAL(isSQLConnected(bool)), login, SLOT(connected(bool)));
+    connect(this, SIGNAL(isSQLConnected(int)), login, SLOT(connected(int)));
     //Check for valid DB
     isDBOpen = openDB();
     //Call for Login Window
@@ -177,6 +177,8 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(ui->tab1_ProgramData_To_Cancel, SIGNAL(clicked()), this, SLOT(tab1_ProgramData_Cancel()));
         connect(ui->tab1_ProgramData_To_Accept, SIGNAL(clicked()), this, SLOT(tab1_ProgramData_Accept()));
         connect(ui->tab1_ProgramData_GodParent_Edit, SIGNAL(clicked()), this, SLOT(tab1_ProgramData_Edit()));
+        connect(ui->tab1_Visits_Open, SIGNAL(clicked()), this, SLOT(tab1_Visits_Open()));
+        connect(ui->tab1_Visits_Table, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(tab1_Visits_Table_doubleClicked(QModelIndex)));
 
         QList<QGroupBox*> groupBox_List = ui->tab_searchView->findChildren<QGroupBox*>();
         foreach (QGroupBox* groupBox, groupBox_List)
@@ -347,6 +349,38 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::on_actionSalir_triggered()
+{
+    this->close();
+}
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+    if(conStat)
+    {
+        QMessageBox close(
+                    QMessageBox::Question,
+                    "Cerrar",
+                    "Está seguro que desea cerrar el programa?",
+                    QMessageBox::Yes | QMessageBox::No);
+        close.setButtonText(QMessageBox::Yes, "Si");
+        close.setWindowIcon(QIcon(iconsPath->absolutePath().append("/Ok_Icon.png")));
+
+        if (close.exec() == QMessageBox::Yes)
+        {
+            sqlite.close();
+            e->accept();
+        }
+        else
+        {
+            e->ignore();
+        }
+    }
+    else
+    {
+        e->accept();
+    }
+}
+
 //Database functions:
 
 bool MainWindow::openDB()
@@ -357,16 +391,21 @@ bool MainWindow::openDB()
         sqlite.close();
     sqlite.setDatabaseName(databaseAddress);
     QFileInfo DBfileInfo(databaseAddress);
-    if (DBfileInfo.suffix() == "db" && sqlite.open())
+    if(!DBfileInfo.exists())
+    {
+        emit isSQLConnected(2);
+        return false;
+    }
+    else if (DBfileInfo.suffix() == "db" && sqlite.open())
     {
         this->statLabel->setText(QString("Conectado - ").append(settings->value("main/databaseDirectory").toString()).append(" "));
-        emit isSQLConnected(true);
+        emit isSQLConnected(1);
         return true;
 
     }
     else
     {
-        emit isSQLConnected(false);
+        emit isSQLConnected(0);
         return false;
     }
 }
@@ -864,6 +903,27 @@ void MainWindow::tab1_basicInfo_City_currentIndexChanged(int index)
 
 }
 
+void MainWindow::tab1_Visits_Open()
+{
+    int index = ui->tab1_Visits_Table->selectionModel()->currentIndex().row();
+    int visitIndex  =ui->tab1_Visits_Table->model()->data(ui->tab1_Visits_Table->model()->index(index, 0)).toInt();
+
+    qDebug() <<visitIndex;
+
+    VisitView *visit = new VisitView(this, visitIndex);
+    visit->exec();
+    delete visit;
+}
+
+void MainWindow::tab1_Visits_Table_doubleClicked(const QModelIndex &index)
+{
+    int visitIndex = ui->tab1_Visits_Table->model()->data(ui->tab1_Visits_Table->model()->index(index.row(), 0)).toInt();
+
+    VisitView *visit = new VisitView(this, visitIndex);
+    visit->exec();
+    delete visit;
+}
+
 void MainWindow::tab1_save_clicked()
 {
     QMessageBox cancel(
@@ -1021,12 +1081,13 @@ void MainWindow::tab1_loadData()
     ui->tab1_InChargeOf_Comment->setPlainText(query2.value("Comment").toString());
 
     query2.clear();
-    query2.prepare("SELECT Visits.Date AS 'Fecha', CASE (Visits.Meeting) WHEN 1 THEN 'Si'ELSE 'No' END AS 'Encuentro?', CASE (Visits.GeneralStatus) WHEN 0 THEN 'Bueno' WHEN 1 THEN 'Regular' WHEN 2 THEN 'Malo' ELSE 'Muy Malo' END AS 'Estado General' FROM Visits WHERE Visits.ID_GodsonCode = :id ORDER BY Visits.Date DESC");
+    query2.prepare("SELECT Visits.ID_Visit, Visits.Date AS 'Fecha', CASE (Visits.Meeting) WHEN 1 THEN 'Si'ELSE 'No' END AS 'Encuentro?', CASE (Visits.GeneralStatus) WHEN 0 THEN 'Bueno' WHEN 1 THEN 'Regular' WHEN 2 THEN 'Malo' ELSE 'Muy Malo' END AS 'Estado General' FROM Visits WHERE Visits.ID_GodsonCode = :id ORDER BY Visits.Date DESC");
     query2.bindValue(":id", tab1_searchIndex);
     query2.exec();
     tab1_model = new QSqlQueryModel;
     tab1_model->setQuery(query2);
     ui->tab1_Visits_Table->setModel(tab1_model);
+    ui->tab1_Visits_Table->setColumnHidden(0, 1);
 
     query2.clear();
 
@@ -2032,5 +2093,4 @@ void MainWindow::tab7_disconnect_clicked()
 
 //--------------------------------------------------------------------------
 //Tab8
-
 

@@ -17,6 +17,7 @@
 #include "dblogin.h"
 #include "globaldata.h"
 #include "sqlconsole.h"
+#include "visitview.h"
 
 namespace Ui {
 class MainWindow;
@@ -29,8 +30,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     DBLogin *login;
-    bool conStat;
     ~MainWindow();
+public slots:
+    void tryConnect();
 private slots:
     void on_actionBuscar_Ahijado_triggered();
     void on_actionApadrinar_triggered();
@@ -40,6 +42,7 @@ private slots:
 
     void on_actionImprimir_triggered();
 
+    void on_actionSalir_triggered();
     void on_actionCambiar_Base_de_Datos_triggered();
     void actionSQLConsole();
 
@@ -69,6 +72,8 @@ private slots:
     void tab1_ProgramData_Cancel();
     void tab1_ProgramData_Accept();
     void tab1_ProgramData_Edit();
+    void tab1_Visits_Open();
+    void tab1_Visits_Table_doubleClicked(const QModelIndex &index);
     void tab1$7_ProgramData_Edit_goBack_clicked();
 
     //Tab2
@@ -116,11 +121,10 @@ private slots:
     void tab7_Godsons_Table_doubleClicked(const QModelIndex &index);
     void tab7_disconnect_clicked();
     void tab7$1_open_goBack_clicked();
-
-public slots:
-    void tryConnect();
 signals:
-    void isSQLConnected(bool);
+    void isSQLConnected(int);
+protected:
+    void closeEvent(QCloseEvent * e);
 private:
     Ui::MainWindow *ui;
     QSqlDatabase sqlite;
@@ -128,6 +132,7 @@ private:
     QProgressBar *statProgress;
     bool openDB();
     bool isDBOpen;
+    bool conStat;
 
     //General
     QStringList cities;
