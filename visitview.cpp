@@ -1,4 +1,4 @@
-#include "visitview.h"
+﻿#include "visitview.h"
 #include "ui_visitview.h"
 
 VisitView::VisitView(QWidget *parent, int visit) :
@@ -11,7 +11,6 @@ VisitView::VisitView(QWidget *parent, int visit) :
 
     loadVisit(visit);
     setEdit(false);
-
 }
 
 VisitView::VisitView(QWidget *parent, QString id) :
@@ -22,6 +21,7 @@ VisitView::VisitView(QWidget *parent, QString id) :
     ui->setupUi(this);
     ui->Godson_ID->setText(id);
     ui->Date->setDate(QDate::currentDate());
+    dateCheckAvail = false;
 
     setEdit(true);
     ui->Ok->setText("Crear");
@@ -54,12 +54,19 @@ int VisitView::getVisitNumber(QDate date)
         dateList.append(QDate::fromString(query.value("Date").toString(), "dd/MM/yyyy"));
     }
     qSort(dateList);
+    qDebug() << dateList;
+    if (dateCheckAvail && ui->Date->date() == date && dateList.contains(date))
+    {
+        int i = 0;
+        for(; dateList[i] != date; i++);
+        return i + 1;
+    }
 
-    if (dateList.contains(date))
+    else if (dateList.contains(date))
         return -1;
 
     int i = 0;
-    for (; i < dateList.size(); i++)
+    for(; i < dateList.size(); i++)
     {
         if (dateList[i] > date)
         {
@@ -78,11 +85,15 @@ void VisitView::loadVisit(int visit)
     query.next();
 
     ui->Godson_ID->setText(query.value("ID_GodsonCode").toString());
+    id = query.value("ID_GodsonCode").toString();
     ui->Date->setDate(QDate::fromString(query.value("Date").toString(), "dd/MM/yyyy"));
     ui->Meeting->setChecked(query.value("Meeting").toBool());
     ui->GeneralStatus->setCurrentIndex(query.value("GeneralStatus").toInt());
     ui->Comment->setPlainText(query.value("Comment").toString());
 
+    dateCheckAvail = true;
+    canSave = true;
+    date = QDate::fromString(query.value("Date").toString(), "dd/MM/yyyy");
     ui->VisitNumber->setText(QString::number(getVisitNumber(QDate::fromString(query.value("Date").toString(), "dd/MM/yyyy"))));
 }
 
@@ -120,9 +131,11 @@ void VisitView::createVisit_Clicked()
 {
     if (canSave)
     {
-    createVisit();
-    this->close();
-    return;
+        createVisit();
+        this->close();
+        dateCheckAvail = true;
+        date = ui->Date->date();
+        return;
     }
     QMessageBox *message = new QMessageBox;
     message->setWindowIcon(QIcon(iconsPath->absolutePath().append("/Warning_Icon.png")));
@@ -136,6 +149,7 @@ void VisitView::saveEdit_Clicked()
     {
         saveVisit();
         setEdit(false);
+        date = ui->Date->date();
         return;
     }
     QMessageBox *message = new QMessageBox;
@@ -153,6 +167,7 @@ void VisitView::cancelEdit_Clicked()
 
 void VisitView::dateChanged(QDate date)
 {
+    qDebug() <<"dc";
     int dateNumber = getVisitNumber(date);
     QPalette *palette = new QPalette();
 

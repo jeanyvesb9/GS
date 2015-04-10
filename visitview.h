@@ -30,6 +30,8 @@ private:
     QSqlQuery query;
     int visit;
     QString id;
+    QDate date;
+    bool dateCheckAvail;
     bool editStatus;
     bool canSave;
     void saveVisit();

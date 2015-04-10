@@ -908,11 +908,8 @@ void MainWindow::tab1_Visits_Open()
     int index = ui->tab1_Visits_Table->selectionModel()->currentIndex().row();
     int visitIndex  =ui->tab1_Visits_Table->model()->data(ui->tab1_Visits_Table->model()->index(index, 0)).toInt();
 
-    qDebug() <<visitIndex;
-
     VisitView *visit = new VisitView(this, visitIndex);
     visit->exec();
-    delete visit;
 }
 
 void MainWindow::tab1_Visits_Table_doubleClicked(const QModelIndex &index)
@@ -921,7 +918,6 @@ void MainWindow::tab1_Visits_Table_doubleClicked(const QModelIndex &index)
 
     VisitView *visit = new VisitView(this, visitIndex);
     visit->exec();
-    delete visit;
 }
 
 void MainWindow::tab1_save_clicked()

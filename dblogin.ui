@@ -104,8 +104,9 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>Ok</tabstop>
   <tabstop>changeDB</tabstop>
+  <tabstop>createDB</tabstop>
+  <tabstop>Ok</tabstop>
  </tabstops>
  <resources/>
  <connections/>
