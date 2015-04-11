@@ -19,6 +19,8 @@ public:
     explicit VisitView(QWidget *parent = 0, int visit = 0);
     explicit VisitView(QWidget *parent = 0, QString id = 0);
     ~VisitView();
+signals:
+    void update();
 private slots:
     void edit_Clicked();
     void createVisit_Clicked();

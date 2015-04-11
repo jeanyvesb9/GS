@@ -14,6 +14,7 @@ SQLConsole::SQLConsole(QWidget *parent) :
     connect(ui->passwordCancel, SIGNAL(clicked()), this, SLOT(close()));
 
     this->setFixedSize(375, 90);
+    this->setSizeGripEnabled(true);
     this->setWindowIcon(QIcon(iconsPath->absolutePath().append("/Console_Icon.png")));
     ui->error->setReadOnly(true);
 

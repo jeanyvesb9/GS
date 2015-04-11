@@ -74,6 +74,7 @@ private slots:
     void tab1_ProgramData_Edit();
     void tab1_Visits_Open();
     void tab1_Visits_Table_doubleClicked(const QModelIndex &index);
+    void tab1_Visits_Table_Update();
     void tab1$7_ProgramData_Edit_goBack_clicked();
 
     //Tab2

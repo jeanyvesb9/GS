@@ -208,10 +208,12 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->tab1_edit->setIcon(QIcon(iconsPath->absolutePath().append("/Edit_Icon.png")));
         ui->tab1_saveChanges->setIcon(QIcon(iconsPath->absolutePath().append("/Save_Icon.png")));
         ui->tab1_goBack->setIcon(QIcon(iconsPath->absolutePath().append("/Back_Icon.png")));
+
         ui->tab1_Visits_Table->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->tab1_Visits_Table->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->tab1_Visits_Table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
         ui->tab1_Visits_Table->verticalHeader()->setVisible(false);
+        ui->tab1_Visits_Table->setColumnHidden(0, 1);
 
         tab1_setEditMode(false);
 
@@ -909,6 +911,7 @@ void MainWindow::tab1_Visits_Open()
     int visitIndex  =ui->tab1_Visits_Table->model()->data(ui->tab1_Visits_Table->model()->index(index, 0)).toInt();
 
     VisitView *visit = new VisitView(this, visitIndex);
+    connect(visit, SIGNAL(update()), this, SLOT(tab1_Visits_Table_Update()));
     visit->exec();
 }
 
@@ -917,7 +920,31 @@ void MainWindow::tab1_Visits_Table_doubleClicked(const QModelIndex &index)
     int visitIndex = ui->tab1_Visits_Table->model()->data(ui->tab1_Visits_Table->model()->index(index.row(), 0)).toInt();
 
     VisitView *visit = new VisitView(this, visitIndex);
+    connect(visit, SIGNAL(update()), this, SLOT(tab1_Visits_Table_Update()));
     visit->exec();
+}
+
+void MainWindow::tab1_Visits_Table_Update()
+{
+    QSqlQuery query;
+    query.clear();
+    query.prepare("SELECT Visits.ID_Visit, (substr(Date, 9, 2) || '/' || substr(Date, 6, 2) || '/' || substr(Date, 1, 4)) AS 'Fecha', CASE (Visits.Meeting) WHEN 1 THEN 'Si'ELSE 'No' END AS 'Encuentro?', CASE (Visits.GeneralStatus) WHEN 0 THEN 'Bueno' WHEN 1 THEN 'Regular' WHEN 2 THEN 'Malo' ELSE 'Muy Malo' END AS 'Estado General' FROM Visits WHERE Visits.ID_GodsonCode = :id ORDER BY Visits.Date DESC");
+    query.bindValue(":id", tab1_searchIndex);
+    query.exec();
+    tab1_model = new QSqlQueryModel;
+    tab1_model->setQuery(query);
+    ui->tab1_Visits_Table->setModel(tab1_model);
+    ui->tab1_Visits_Table->setColumnHidden(0, 1);
+
+    query.clear();
+    query.prepare("SELECT Visits.Date, Visits.Meeting, Visits.GeneralStatus, Visits.Comment FROM Visits WHERE Visits.ID_GodsonCode = :id ORDER BY Visits.Date DESC LIMIT 1");
+    query.bindValue(":id", tab1_searchIndex);
+    query.exec();
+    query.next();
+    ui->tab1_Visits_LastVisit_Date->setDate(QDate::fromString(query.value("Date").toString(),"yyyy/MM/dd"));
+    ui->tab1_Visits_LastVisit_Meeting->setChecked(query.value("Meeting").toBool());
+    ui->tab1_Visits_LastVisit_GeneralStatus->setCurrentIndex(query.value("GeneralStatus").toInt());
+    ui->tab1_Visits_LastVisit_Comment->setPlainText(query.value("Comment").toString());
 }
 
 void MainWindow::tab1_save_clicked()
@@ -1077,7 +1104,7 @@ void MainWindow::tab1_loadData()
     ui->tab1_InChargeOf_Comment->setPlainText(query2.value("Comment").toString());
 
     query2.clear();
-    query2.prepare("SELECT Visits.ID_Visit, Visits.Date AS 'Fecha', CASE (Visits.Meeting) WHEN 1 THEN 'Si'ELSE 'No' END AS 'Encuentro?', CASE (Visits.GeneralStatus) WHEN 0 THEN 'Bueno' WHEN 1 THEN 'Regular' WHEN 2 THEN 'Malo' ELSE 'Muy Malo' END AS 'Estado General' FROM Visits WHERE Visits.ID_GodsonCode = :id ORDER BY Visits.Date DESC");
+    query2.prepare("SELECT Visits.ID_Visit, (substr(Date, 9, 2) || '/' || substr(Date, 6, 2) || '/' || substr(Date, 1, 4)) AS 'Fecha', CASE (Visits.Meeting) WHEN 1 THEN 'Si'ELSE 'No' END AS 'Encuentro?', CASE (Visits.GeneralStatus) WHEN 0 THEN 'Bueno' WHEN 1 THEN 'Regular' WHEN 2 THEN 'Malo' ELSE 'Muy Malo' END AS 'Estado General' FROM Visits WHERE Visits.ID_GodsonCode = :id ORDER BY Visits.Date DESC");
     query2.bindValue(":id", tab1_searchIndex);
     query2.exec();
     tab1_model = new QSqlQueryModel;
@@ -1086,12 +1113,11 @@ void MainWindow::tab1_loadData()
     ui->tab1_Visits_Table->setColumnHidden(0, 1);
 
     query2.clear();
-
     query2.prepare("SELECT Visits.Date, Visits.Meeting, Visits.GeneralStatus, Visits.Comment FROM Visits WHERE Visits.ID_GodsonCode = :id ORDER BY Visits.Date DESC LIMIT 1");
     query2.bindValue(":id", tab1_searchIndex);
     query2.exec();
     query2.next();
-    ui->tab1_Visits_LastVisit_Date->setDate(QDate::fromString(query2.value("Date").toString(),"dd/MM/yyyy"));
+    ui->tab1_Visits_LastVisit_Date->setDate(QDate::fromString(query2.value("Date").toString(),"yyyy/MM/dd"));
     ui->tab1_Visits_LastVisit_Meeting->setChecked(query2.value("Meeting").toBool());
     ui->tab1_Visits_LastVisit_GeneralStatus->setCurrentIndex(query2.value("GeneralStatus").toInt());
     ui->tab1_Visits_LastVisit_Comment->setPlainText(query2.value("Comment").toString());
